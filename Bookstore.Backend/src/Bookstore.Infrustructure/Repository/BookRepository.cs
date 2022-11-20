@@ -1,9 +1,11 @@
-﻿using Bookstore.Domain.Aggregates.BookAggregate;
+﻿using System.Net;
+using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Aggregates.UserAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bookstore.Infrustructure.Repository
 {
@@ -93,6 +95,14 @@ namespace Bookstore.Infrustructure.Repository
         {
             return await _reviewCollection.Find(x => x.User.UserId == userId && x.BookId == bookId)
                 .FirstOrDefaultAsync();
+        }
+
+        public async Task UpdateReviewsByUserId(string id, string imageUrl)
+        {
+            var filter = Builders<Review>.Filter.Eq(x => x.User.UserId, id);
+            var update = Builders<Review>.Update.Set(x => x.User.ImageUrl, imageUrl);
+
+            await _reviewCollection.UpdateManyAsync(filter, update);
         }
 
         public async Task UpdateBookRate(string bookId, float rate)

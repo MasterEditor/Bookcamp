@@ -50,7 +50,7 @@ services:
       - 81:80
       - 5341:5341
     volumes:
-      - data:/seq-logs
+      - data:/data
 
   mongodb:
     image: mongo:latest
@@ -60,4 +60,5 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - data:/var/lib/mongodb
+      - data:/data/db
+      - data:/data/configdb

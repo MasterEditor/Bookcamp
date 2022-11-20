@@ -7,6 +7,7 @@ namespace Bookstore.Domain.Shared.Contracts
     {
         Task UpdateFragmentsAsync(ObjectId id, ValueObjects.Path[] fragments);
         Task AddReview(Review review);
+        Task UpdateReviewsByUserId(string id, string imageUrl);
         Task DeleteReviewAsync(string id);
         Task AddRating(Rating rating);
         Task<float> GetRateByAllRates(string bookId);

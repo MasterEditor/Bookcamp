@@ -39,6 +39,10 @@ function BooksComp({ genre, keywords }: BooksCompProps) {
     { isLoading: booksLoading, isSuccess: booksSuccess, data: booksData },
   ] = booksApi.useLazyGetBooksQuery();
 
+  useEffect(() => {
+    getBooks({ page, pageSize, keywords, genre });
+  }, [keywords]);
+
   const [genres, setGenres] = useState<string[]>([]);
 
   useEffect(() => {

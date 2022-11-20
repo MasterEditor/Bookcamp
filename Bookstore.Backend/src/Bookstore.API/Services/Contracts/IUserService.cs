@@ -13,7 +13,7 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<string>> Login(LoginUserRequest request);
         Task<Result<Unit>> DeleteUser(string email);
         Task<Result<Unit>> ChangeName(string id, string newName);
-        Task<Result<string>> UpdateImage(string id, IFormFile image);
+        Task<Result<string>> UpdateImage(string id, IFormFile image, string serverUrl);
         Task<Result<UserDataResponse>> GetUserData(string id, string serverUrl);
         Task<Result<GetFileResponse>> GetImage(string id);
         Task<Result<Unit>> AddToFavourite(string id, string bookId);

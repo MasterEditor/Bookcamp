@@ -205,7 +205,7 @@ namespace Bookstore.API.Services
             return user.Id.ToString();
         }
 
-        public async Task<Result<string>> UpdateImage(string id, IFormFile image)
+        public async Task<Result<string>> UpdateImage(string id, IFormFile image, string serverUrl)
         {
             var valid = Validate(image);
 
@@ -231,6 +231,8 @@ namespace Bookstore.API.Services
                 imageRes.UniqueName, 
                 imageRes.Extension,
                 image.ContentType);
+
+            var reviews = _bookRepository.UpdateReviewsByUserId(id, $"{serverUrl}/api/user/images/{imageRes.UniqueName}");
 
             await _userRepository.UpdateImageAsync(user.Id, path);
 

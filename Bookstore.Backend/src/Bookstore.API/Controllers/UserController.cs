@@ -1,5 +1,4 @@
-﻿using System.Net;
-using Bookstore.API.Extensions;
+﻿using Bookstore.API.Extensions;
 using Bookstore.API.Models;
 using Bookstore.API.Models.ChangeUserName;
 using Bookstore.API.Models.Favourite;
@@ -7,7 +6,6 @@ using Bookstore.API.Models.LoginUser;
 using Bookstore.API.Models.SignupUser;
 using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
-using LanguageExt.Pipes;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -98,7 +96,9 @@ namespace Bookstore.API.Controllers
         {
             string id = HttpContext.GetUserId();
 
-            var response = await _userService.UpdateImage(id, request.Image);
+            var serverUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var response = await _userService.UpdateImage(id, request.Image, serverUrl);
 
             return response.ToOk();
         }

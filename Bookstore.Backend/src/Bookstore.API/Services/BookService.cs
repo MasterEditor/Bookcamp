@@ -144,7 +144,7 @@ namespace Bookstore.API.Services
             UserReview userReview = new(
                 userId, 
                 user.Name, 
-                user.Image is not null ? $"{serverUrl}/api/user/images/{userId}" : "");
+                user.Image is not null ? $"{serverUrl}/api/user/images/{user.Image.PathValue}" : "");
 
             Review newReview = new(review, bookId, userReview);
 

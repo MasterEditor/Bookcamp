@@ -6,6 +6,7 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <DocumentationFile>bin\Debug\net7.0\Bookstore.API.xml</DocumentationFile>
     <GenerateDocumentationFile>True</GenerateDocumentationFile>
+    <UserSecretsId>3d521f71-39a9-452a-94dc-b24d52f45d51</UserSecretsId>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
