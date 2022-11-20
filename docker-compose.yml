@@ -1,0 +1,56 @@
+version: "3.9"
+
+volumes:
+  data:
+
+services:
+  # backend:
+  #   build:
+  #     dockerfile: ./Bookstore.Backend/Dockerfile
+  #   ports:
+  #     - 7434:443
+  #   environment:
+  #     - ASPNETCORE_ENVIRONMENT=Production
+  #     - ASPNETCORE_URLS=https://+:443
+  #     - ASPNETCORE_AdminSettings__Login=${AdminLogin:?err}
+  #     - ASPNETCORE_AdminSettings__Password=${AdminPassword:?err}
+  #     - ASPNETCORE_TokenSettings__SecretKey=${TokenSecretKey:?err}
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Password=${CertificatePassword:?err}
+  #     - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+  #   volumes:
+  #     - ~/.aspnet/https:/https:ro
+  #     - ${APPDATA}/Microsoft/UserSecrets:/root/.microsoft/usersecrets:ro
+  #   depends_on:
+  #     - mongodb
+
+  # frontend:
+  #   build:
+  #     dockerfile: ./bookstore-frontend/Dockerfile
+  #   ports:
+  #     - 3000:3000
+  #   environment:
+  #     - REACT_APP_SERVER_ENDPOINT=backend
+  #   depends_on:
+  #     - backend
+
+  seq:
+    image: datalust/seq:latest
+    container_name: seq
+    restart: unless-stopped
+    environment:
+      - ACCEPT_EULA=Y
+    ports:
+      - 81:80
+      - 5341:5341
+    volumes:
+      - data:/seq-logs
+
+  mongodb:
+    image: mongo:latest
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=mongo
+      - MONGO_INITDB_ROOT_PASSWORD=${MongoPassword:?err}
+    ports:
+      - 27017:27017
+    volumes:
+      - data:/var/lib/mongodb
