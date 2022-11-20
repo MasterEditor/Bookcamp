@@ -282,7 +282,7 @@ function OneBook() {
                 {reviews?.length} reviews
               </HashLink>
             </div>
-            {userRate != undefined && userRate != 0 && (
+            {userRate !== undefined && userRate !== 0 && (
               <p className="mt-2 text-sm text-[#ffb703] italic">
                 Your rate is {userRate}
               </p>
@@ -351,16 +351,20 @@ function OneBook() {
                                       <a
                                         href={item}
                                         className="w-full"
-                                        download
+                                        download={item}
                                       >
-                                        {item.substring(item.indexOf("=") + 1)}
+                                        {item.substring(
+                                          item.lastIndexOf("/") + 1
+                                        )}
                                       </a>
                                     ) : (
                                       <p
                                         className="w-full"
                                         onClick={handleShowAlert}
                                       >
-                                        {item.substring(item.indexOf("=") + 1)}
+                                        {item.substring(
+                                          item.lastIndexOf("/") + 1
+                                        )}
                                       </p>
                                     )}
                                   </button>

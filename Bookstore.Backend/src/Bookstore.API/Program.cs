@@ -14,7 +14,7 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Security.Claims;
 using Bookstore.API.Middlewares;
-using Microsoft.AspNetCore.CookiePolicy;
+using System.Text.Json;
 
 Log.Logger = new LoggerConfiguration()
     .CreateBootstrapLogger();
@@ -24,6 +24,10 @@ MongoClassMaps.RegisterMaps();
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Host.UseSerilog((ctx, lc) => lc.ReadFrom.Configuration(ctx.Configuration));
+
+builder.Configuration
+    .AddEnvironmentVariables(prefix: "ASPNETCORE_")
+    .AddEnvironmentVariables(prefix: "API_");
 
 builder.Services.AddInfrustructure();
 
@@ -35,7 +39,7 @@ builder.Services.Configure<MongoDbSettings>(builder.Configuration.GetSection("Mo
 builder.Services.Configure<TokenSettings>(builder.Configuration.GetSection("TokenSettings"));
 builder.Services.Configure<ImageSettings>(builder.Configuration.GetSection("ImageSettings"));
 builder.Services.Configure<BookSettings>(builder.Configuration.GetSection("BookSettings"));
-builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("GoogleSettings"));
+builder.Services.Configure<AdminSettings>(builder.Configuration.GetSection("AdminSettings"));
 
 builder.Services.AddCors(options =>
 {
@@ -155,7 +159,7 @@ var app = builder.Build();
 
 app.UseRouting();
 
-if (app.Environment.IsDevelopment())
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
 {
     app.UseSwagger();
     app.UseSwaggerUI(c =>

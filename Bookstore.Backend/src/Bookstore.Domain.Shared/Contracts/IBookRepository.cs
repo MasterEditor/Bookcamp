@@ -5,7 +5,7 @@ namespace Bookstore.Domain.Shared.Contracts
 {
     public interface IBookRepository : IMongoRepository<Book>
     {
-        Task UpdateFragmentAsync(ObjectId id, ValueObjects.Path fragment);
+        Task UpdateFragmentsAsync(ObjectId id, ValueObjects.Path[] fragments);
         Task AddReview(Review review);
         Task DeleteReviewAsync(string id);
         Task AddRating(Rating rating);

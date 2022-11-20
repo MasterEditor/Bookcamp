@@ -16,7 +16,7 @@ namespace Bookstore.Domain.Aggregates.BookAggregate
         public string About { get; private set; }
         public string Language { get; private set; }
         public string Genre { get; private set; }
-        public ValueObjects.Path FragmentPath { get; private set; }
+        public ValueObjects.Path[] FragmentPaths { get; private set; }
         public string Cover { get; private set; }
         public DateTime AddedAt { get; private set; }
 

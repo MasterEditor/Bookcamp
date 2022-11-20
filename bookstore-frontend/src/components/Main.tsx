@@ -30,7 +30,7 @@ function Main() {
   } = booksApi.useGetNewBooksQuery(6);
 
   const { data: topRateBooksData, isSuccess: topRateBooksSuccess } =
-    booksApi.useGetNewBooksQuery(3);
+    booksApi.useGetTopRateBooksQuery(3);
 
   useEffect(() => {
     if (newBooksSuccess) {

@@ -105,10 +105,10 @@ namespace Bookstore.Infrustructure.Repository
             await _collection.UpdateOneAsync(filter, update);
         }
 
-        public async Task UpdateFragmentAsync(ObjectId id, Domain.ValueObjects.Path fragment)
+        public async Task UpdateFragmentsAsync(ObjectId id, Domain.ValueObjects.Path[] fragments)
         {
             var filter = Builders<Book>.Filter.Eq(x => x.Id, id);
-            var update = Builders<Book>.Update.Set(x => x.FragmentPath, fragment);
+            var update = Builders<Book>.Update.Set(x => x.FragmentPaths, fragments);
 
             await _collection.UpdateOneAsync(filter, update);
         }

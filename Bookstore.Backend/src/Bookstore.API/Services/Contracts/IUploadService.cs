@@ -1,7 +1,9 @@
-﻿namespace Bookstore.API.Services.Contracts
+﻿using Bookstore.API.DTOs;
+
+namespace Bookstore.API.Services.Contracts
 {
     public interface IUploadService
     {
-        Task<string> UploadFile(IFormFile file, string path, string uniqueName);
+        Task<UploadFileDTO> UploadFile(IFormFile file, string path, string uniqueName);
     }
 }

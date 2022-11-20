@@ -14,6 +14,7 @@ using Google.Apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Options;
+using Serilog;
 
 namespace Bookstore.API.Controllers
 {
@@ -24,13 +25,12 @@ namespace Bookstore.API.Controllers
         private readonly IBookService _booksService;
         private readonly BooksService _googleBooksService;
 
-        public BooksController(IBookService booksService, IOptions<GoogleSettings> options)
+        public BooksController(IBookService booksService)
         {
             _booksService = booksService;
             _googleBooksService = new BooksService(new BaseClientService.Initializer
             {
                 ApplicationName = "Bookcamp",
-                ApiKey = options.Value.ApiKey,
             });
         }
 
@@ -181,14 +181,15 @@ namespace Bookstore.API.Controllers
             return response.ToOk();
         }
 
-        [HttpGet("fragments/{id}")]
+        [HttpGet("fragments/{id}/{ext}")]
         [Authorize(Policy = "User")]
-        public async Task<IActionResult> GetFragment([FromRoute] string id, [FromQuery] string ext)
+        public async Task<IActionResult> GetFragment([FromRoute] string id, [FromRoute] string ext)
         {
             var response = await _booksService.GetFragment(id, ext);
 
             return response.Match<IActionResult>(success =>
             {
+                Response.Headers.Add("Content-Disposition", $"inline; filename={success.FileName}");
                 return File(success.Data, success.ContentType);
 
             }, ex =>

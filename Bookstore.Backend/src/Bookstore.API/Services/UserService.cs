@@ -27,19 +27,23 @@ namespace Bookstore.API.Services
         private readonly IUploadService _uploadService;
         private readonly TokenSettings _tokenSettings;
         private readonly ImageSettings _imageSettings;
+        private readonly AdminSettings _adminSettings;
 
         public UserService(
             IUserRepository userRepository,
             IBookRepository bookRepository,
             IUploadService uploadService,
             IOptions<TokenSettings> tokenOptions,
-            IOptions<ImageSettings> imageOptions)
+            IOptions<ImageSettings> imageOptions,
+            IOptions<AdminSettings> adminOptions
+            )
         {
             _userRepository = userRepository;
             _bookRepository = bookRepository;
             _uploadService = uploadService;
             _tokenSettings = tokenOptions.Value;
             _imageSettings = imageOptions.Value;
+            _adminSettings = adminOptions.Value;
         }
 
         public async Task<Result<Unit>> AddToFavourite(string id, string bookId)
@@ -99,21 +103,23 @@ namespace Bookstore.API.Services
 
         public async Task<Result<GetFileResponse>> GetImage(string id)
         {
-            var user = await _userRepository.FindByIdAsync(id);
+            var objectId = id.Split('-').First();
+
+            var user = await _userRepository.FindByIdAsync(objectId);
 
             if (user is null)
             {
                 return new Result<GetFileResponse>(new UserNotFoundException());
             }
 
-            string imagePath = Path.Combine(_imageSettings.UploadPath, user.Image.PathValue) + user.Image.Extensions[0];
+            string imagePath = Path.Combine(_imageSettings.UploadPath, user.Image.PathValue) + user.Image.Extension;
 
             byte[] image = await File.ReadAllBytesAsync(imagePath);
 
             return new GetFileResponse()
             {
                 Data = image,
-                ContentType = user.Image.ContentTypes[0]
+                ContentType = user.Image.ContentType
             };
         }
 
@@ -129,7 +135,7 @@ namespace Bookstore.API.Services
                 Email = user.Email,
                 RegisterDate = user.RegistratedAt.ToString("MM/dd/yyyy hh:mm tt"),
                 Favourites = user.Favourites.ToArray(),
-                ImageUrl = user.Image is not null ? $"{serverUrl}/api/user/images/{user.Id}" : ""
+                ImageUrl = user.Image is not null ? $"{serverUrl}/api/user/images/{user.Image.PathValue}" : ""
             }).ToArr();
         }
 
@@ -154,7 +160,7 @@ namespace Bookstore.API.Services
 
             if(user.Image is not null )
             {
-                result.ImageUrl = $"{serverUrl}/api/user/images/{user.Id}";
+                result.ImageUrl = $"{serverUrl}/api/user/images/{user.Image.PathValue}";
             }
 
             return new Result<UserDataResponse>(result);
@@ -164,7 +170,7 @@ namespace Bookstore.API.Services
         {
             var user = await _userRepository.FindOneAsync(x => x.Email == request.Email);
 
-            var admin = await _userRepository.GetAdminAsync("admin");
+            var admin = await _userRepository.GetAdminAsync(_adminSettings.Login);
 
             if (user is not null && user.VerifyPassword(request.Password))
             {
@@ -219,16 +225,16 @@ namespace Bookstore.API.Services
 
             string uniqueName = user.Id.ToString();
 
-            var extension = await _uploadService.UploadFile(image, _imageSettings.UploadPath, uniqueName);
+            var imageRes = await _uploadService.UploadFile(image, _imageSettings.UploadPath, uniqueName);
 
             var path = new Domain.ValueObjects.Path(
-                uniqueName, 
-                new string[] { extension },
-                new string[] {image.ContentType});
+                imageRes.UniqueName, 
+                imageRes.Extension,
+                image.ContentType);
 
             await _userRepository.UpdateImageAsync(user.Id, path);
 
-            return uniqueName;
+            return imageRes.UniqueName;
         }
 
         private string GenerateJWTToken(User user)

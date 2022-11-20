@@ -1,15 +1,21 @@
-﻿using Bookstore.API.Services.Contracts;
+﻿using System.IO.Compression;
+using Bookstore.API.DTOs;
+using Bookstore.API.Services.Contracts;
 
 namespace Bookstore.API.Services
 {
     public class UploadService : IUploadService
     {
-        public async Task<string> UploadFile(IFormFile file, string path, string uniqueName)
+        public async Task<UploadFileDTO> UploadFile(IFormFile file, string path, string uniqueName)
         {
-            using var memoryStream = new MemoryStream();
-            await file.CopyToAsync(memoryStream);
+            byte[] arr;
 
-            byte[] arr = memoryStream.ToArray();
+            using (var memoryStream = new MemoryStream())
+            {
+                await file.CopyToAsync(memoryStream);
+
+                arr = memoryStream.ToArray();
+            }
 
             if (!Directory.Exists(path))
             {
@@ -17,12 +23,34 @@ namespace Bookstore.API.Services
             }
 
             var extension = Path.GetExtension(file.FileName);
-            var uploadFilePath = Path.Combine(path, $"{uniqueName}{extension}");
 
-            using var stream = File.Create(uploadFilePath);
-            await stream.WriteAsync(arr.AsMemory(0, arr.Length));
+            var fileName = uniqueName + "-" + extension[1..];
 
-            return extension;
+            string uploadFilePath = Path.Combine(path, $"{fileName}{extension}");
+
+            using (var stream = File.Create(uploadFilePath))
+            {
+                await stream.WriteAsync(arr.AsMemory(0, arr.Length));
+            }
+
+            if (extension == ".fb2")
+            {
+                string newExtension = ".zip";
+                string archiveFilePath = Path.Combine(path, $"{fileName}{newExtension}");
+
+                using(var archive = ZipFile.Open(archiveFilePath, ZipArchiveMode.Create))
+                {
+                    archive.CreateEntryFromFile(uploadFilePath, Path.GetFileName(uploadFilePath));
+                }
+
+                File.Delete(uploadFilePath);
+            }
+
+            return new()
+            {
+                UniqueName = fileName,
+                Extension = extension
+            };
         }
     }
 }

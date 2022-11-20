@@ -85,19 +85,16 @@ namespace Bookstore.API.Services
 
             string bookId = book.Id.ToString();
 
-            List<string> fragmentExtensions = new();
+            List<Domain.ValueObjects.Path> fragmentPaths = new();
 
             foreach (var fragment in fragments)
             {
-                fragmentExtensions.Add(await _uploadService.UploadFile(fragment, _bookSettings.UploadPath, bookId));
+                var uploadResult = await _uploadService.UploadFile(fragment, _bookSettings.UploadPath, bookId);
+
+                fragmentPaths.Add(new(uploadResult.UniqueName, uploadResult.Extension, "application/zip"));
             }
 
-            var fragmentPath = new Domain.ValueObjects.Path(
-                bookId,
-                fragmentExtensions.ToArray(),
-                fragments.Select(x => x.ContentType).ToArray());
-
-            await _bookRepository.UpdateFragmentAsync(book.Id, fragmentPath);
+            await _bookRepository.UpdateFragmentsAsync(book.Id, fragmentPaths.ToArray());
 
             return new Result<string>(bookId);
         }
@@ -220,24 +217,33 @@ namespace Bookstore.API.Services
 
         public async Task<Result<GetFileResponse>> GetFragment(string id, string ext)
         {
-            var book = await _bookRepository.FindByIdAsync(id);
+            var objectId = id.Split('-').First();
+
+            var book = await _bookRepository.FindByIdAsync(objectId);
 
             if (book is null)
             {
                 return new Result<GetFileResponse>(new BookNotFoundException());
             }
 
-            string extension = book.FragmentPath.Extensions.First(x => x == ext);
-            int pos = Array.IndexOf(book.FragmentPath.Extensions, ext);
+            var fragment = book.FragmentPaths.First(x => x.Extension == ext);
 
-            string fragmentPath = Path.Combine(_bookSettings.UploadPath, book.FragmentPath.PathValue) + extension;
+            string extension = fragment.Extension;
+
+            if(extension == ".fb2")
+            {
+                extension = ".zip";
+            }
+
+            string fragmentPath = Path.Combine(_bookSettings.UploadPath, fragment.PathValue) + extension;
 
             byte[] image = await File.ReadAllBytesAsync(fragmentPath);
 
             return new GetFileResponse()
             {
                 Data = image,
-                ContentType = book.FragmentPath.ContentTypes[pos]
+                ContentType = fragment.ContentType,
+                FileName = fragment.PathValue + extension
             };
         }
 
@@ -276,9 +282,9 @@ namespace Bookstore.API.Services
 
             List<string> paths = new();
 
-            foreach(var item in result.FragmentPath.Extensions)
+            foreach(var item in result.FragmentPaths)
             {
-                string path = $"{serverUrl}/api/books/fragments/{id}?ext={item}";
+                string path = $"{serverUrl}/api/books/fragments/{item.PathValue}/{item.Extension}";
                 paths.Add(path);
             }
 

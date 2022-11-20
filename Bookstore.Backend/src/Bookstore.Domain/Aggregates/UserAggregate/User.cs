@@ -52,7 +52,7 @@ namespace Bookstore.Domain.Aggregates.UserAggregate
                 return;
             }
 
-            var previousImagePath = Path.Combine(uploadPath, Image.PathValue + Image.Extensions.First());
+            var previousImagePath = Path.Combine(uploadPath, Image.PathValue + Image.Extension);
 
             if (File.Exists(previousImagePath))
             {
