@@ -4,5 +4,6 @@
     {
         public string BookId { get; set; }
         public IEnumerable<IFormFile> Fragments { get; set; }
+        public IFormFile Cover { get; set; }
     }
 }

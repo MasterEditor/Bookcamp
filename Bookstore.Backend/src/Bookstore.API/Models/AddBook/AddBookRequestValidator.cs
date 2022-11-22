@@ -11,6 +11,8 @@ namespace Bookstore.API.Models.AddBook
                 .NotEmpty();
             RuleFor(x => x.Fragments)
                 .NotEmpty();
+            RuleFor(x => x.Cover)
+                .NotEmpty();
         }
     }
 }

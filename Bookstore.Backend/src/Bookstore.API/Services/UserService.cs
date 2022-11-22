@@ -1,9 +1,12 @@
-﻿using System.IdentityModel.Tokens.Jwt;
+﻿using System;
+using System.IdentityModel.Tokens.Jwt;
 using System.IO;
 using System.Security.Claims;
 using System.Text;
+using Bookstore.API.Models.GetImage;
 using Bookstore.API.Models.LoginUser;
 using Bookstore.API.Models.SignupUser;
+using Bookstore.API.Models.UserData;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.UserAggregate;
 using Bookstore.Domain.Exceptions;
@@ -11,12 +14,9 @@ using Bookstore.Domain.Models;
 using Bookstore.Domain.Shared.Contracts;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.Pipes;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using System;
-using Bookstore.API.Models.UserData;
-using Bookstore.API.Models.GetImage;
-using LanguageExt.Pipes;
 
 namespace Bookstore.API.Services
 {
@@ -123,7 +123,7 @@ namespace Bookstore.API.Services
             };
         }
 
-        public async Task<Result<Arr<UserDataResponse>>> GetAllUsers(string serverUrl)
+        public async Task<Result<Arr<UserDataResponse>>> GetAllUsers()
         {
             var users = await _userRepository.GetAll();
 
@@ -135,15 +135,15 @@ namespace Bookstore.API.Services
                 Email = user.Email,
                 RegisterDate = user.RegistratedAt.ToString("MM/dd/yyyy hh:mm tt"),
                 Favourites = user.Favourites.ToArray(),
-                ImageUrl = user.Image is not null ? $"{serverUrl}/api/user/images/{user.Image.PathValue}" : ""
+                ImageUrl = user?.Image?.Url ?? ""
             }).ToArr();
         }
 
-        public async Task<Result<UserDataResponse>> GetUserData(string id, string serverUrl)
+        public async Task<Result<UserDataResponse>> GetUserData(string id)
         {
             var user = await _userRepository.FindByIdAsync(id);
 
-            if(user is null)
+            if (user is null)
             {
                 return new Result<UserDataResponse>(new UserNotFoundException());
             }
@@ -158,9 +158,9 @@ namespace Bookstore.API.Services
                 Favourites = user.Favourites.ToArray()
             };
 
-            if(user.Image is not null )
+            if (user.Image is not null)
             {
-                result.ImageUrl = $"{serverUrl}/api/user/images/{user.Image.PathValue}";
+                result.ImageUrl = user.Image.Url;
             }
 
             return new Result<UserDataResponse>(result);
@@ -176,7 +176,9 @@ namespace Bookstore.API.Services
             {
                 return GenerateJWTToken(user);
             }
-            else if (admin is not null && admin.VerifyPassword(request.Password))
+            else if (admin is not null
+                && user is null
+                && admin.VerifyPassword(request.Password))
             {
                 return GenerateJWTToken(admin);
             }
@@ -228,13 +230,14 @@ namespace Bookstore.API.Services
             var imageRes = await _uploadService.UploadFile(image, _imageSettings.UploadPath, uniqueName);
 
             var path = new Domain.ValueObjects.Path(
-                imageRes.UniqueName, 
+                imageRes.UniqueName,
                 imageRes.Extension,
-                image.ContentType);
-
-            var reviews = _bookRepository.UpdateReviewsByUserId(id, $"{serverUrl}/api/user/images/{imageRes.UniqueName}");
+                image.ContentType,
+                $"{serverUrl}/api/user/images/{imageRes.UniqueName}");
 
             await _userRepository.UpdateImageAsync(user.Id, path);
+
+            await _bookRepository.UpdateReviewsByUserId(id, path.Url);
 
             return imageRes.UniqueName;
         }

@@ -37,9 +37,7 @@ namespace Bookstore.API.Controllers
         [HttpGet("{id}")]
         public async Task<IActionResult> GetBook([FromRoute] string id)
         {
-            var serverUrl = $"{Request.Scheme}://{Request.Host}";
-
-            var response = await _booksService.GetOneBook(id, serverUrl);
+            var response = await _booksService.GetOneBook(id);
 
             return response.ToOk();
         }
@@ -50,12 +48,14 @@ namespace Bookstore.API.Controllers
         {
             Volume? bookRes = await _googleBooksService.Volumes.Get(request.BookId).ExecuteAsync();
 
-            if(bookRes is null)
+            if (bookRes is null)
             {
                 return BadRequest();
             }
 
-            var response = await _booksService.AddBook(bookRes, request.Fragments);
+            var serverUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var response = await _booksService.AddBook(bookRes, request.Fragments, request.Cover, serverUrl);
 
             return response.ToOk();
         }
@@ -73,10 +73,10 @@ namespace Bookstore.API.Controllers
         }
 
         [HttpGet("author/{author}")]
-        public async Task<IActionResult> GetBooksAuthor([FromRoute] string author,[FromQuery] string id)
+        public async Task<IActionResult> GetBooksAuthor([FromRoute] string author, [FromQuery] string id)
         {
             var response = await _booksService.GetBooks(author, id);
-            
+
             return response.ToOk();
         }
 
@@ -102,13 +102,10 @@ namespace Bookstore.API.Controllers
         {
             string id = HttpContext.GetUserId();
 
-            var serverUrl = $"{Request.Scheme}://{Request.Host}";
-
             var response = await _booksService.AddReview(
                 request.Review,
                 request.BookId,
-                id, 
-                serverUrl);
+                id);
 
             return response.ToOk();
         }
@@ -190,6 +187,21 @@ namespace Bookstore.API.Controllers
             return response.Match<IActionResult>(success =>
             {
                 Response.Headers.Add("Content-Disposition", $"inline; filename={success.FileName}");
+                return File(success.Data, success.ContentType);
+
+            }, ex =>
+            {
+                return BadRequest(new Response<string>(ex.Message));
+            });
+        }
+
+        [HttpGet("covers/{id}")]
+        public async Task<IActionResult> GetCover([FromRoute] string id, [FromRoute] string ext)
+        {
+            var response = await _booksService.GetCover(id);
+
+            return response.Match<IActionResult>(success =>
+            {
                 return File(success.Data, success.ContentType);
 
             }, ex =>

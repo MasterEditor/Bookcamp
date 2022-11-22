@@ -15,6 +15,7 @@ using LanguageExt.Common;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static System.Net.Mime.MediaTypeNames;
 using Path = System.IO.Path;
 
 namespace Bookstore.API.Services
@@ -26,13 +27,15 @@ namespace Bookstore.API.Services
         private readonly IUserRepository _userRepository;
         private readonly IUploadService _uploadService;
         private readonly BookSettings _bookSettings;
+        private readonly ImageSettings _imageSettings;
 
         public BookService(
             IMapper mapper,
             IBookRepository bookRepository,
             IUserRepository userRepository,
             IUploadService uploadService,
-            IOptions<BookSettings> bookOptions
+            IOptions<BookSettings> bookOptions,
+            IOptions<ImageSettings> imageOptions
             )
         {
             _mapper = mapper;
@@ -40,9 +43,14 @@ namespace Bookstore.API.Services
             _userRepository = userRepository;
             _uploadService = uploadService;
             _bookSettings = bookOptions.Value;
+            _imageSettings = imageOptions.Value;
         }
 
-        public async Task<Result<string>> AddBook(Google.Apis.Books.v1.Data.Volume volume, IEnumerable<IFormFile> fragments)
+        public async Task<Result<string>> AddBook(
+            Google.Apis.Books.v1.Data.Volume volume,
+            IEnumerable<IFormFile> fragments,
+            IFormFile cover,
+            string serverUrl)
         {
             DateTime compareDate = DateTime.UtcNow.AddMinutes(-1);
 
@@ -62,6 +70,13 @@ namespace Bookstore.API.Services
                 return validateBooks;
             }
 
+            var validateCover = ValidateCover(cover);
+
+            if (validateCover.IsFaulted)
+            {
+                return validateCover;
+            }
+
             string? language = volume.VolumeInfo.Language.ToLanguage();
 
             if (language is null)
@@ -78,8 +93,7 @@ namespace Bookstore.API.Services
                 volume.VolumeInfo.PageCount ?? 0,
                 volume.VolumeInfo.Description,
                 language,
-                volume.VolumeInfo.Categories.First().Split(' ').First(),
-                volume.VolumeInfo.ImageLinks.Large);
+                volume.VolumeInfo.Categories.First().Split(' ').First());
 
             await _bookRepository.InsertOneAsync(book);
 
@@ -91,10 +105,23 @@ namespace Bookstore.API.Services
             {
                 var uploadResult = await _uploadService.UploadFile(fragment, _bookSettings.UploadPath, bookId);
 
-                fragmentPaths.Add(new(uploadResult.UniqueName, uploadResult.Extension, "application/zip"));
+                fragmentPaths.Add(new(
+                    uploadResult.UniqueName,
+                    uploadResult.Extension,
+                    "application/zip",
+                    $"{serverUrl}/api/books/fragments/{uploadResult.UniqueName}/{uploadResult.Extension}"));
             }
 
+            var uploadCoverResult = await _uploadService.UploadFile(cover, _imageSettings.UploadPath, bookId);
+
+            Domain.ValueObjects.Path coverPath = new(
+                uploadCoverResult.UniqueName,
+                uploadCoverResult.Extension,
+                cover.ContentType,
+                $"{serverUrl}/api/books/covers/{uploadCoverResult.UniqueName}");
+
             await _bookRepository.UpdateFragmentsAsync(book.Id, fragmentPaths.ToArray());
+            await _bookRepository.UpdateCoverAsync(book.Id, coverPath);
 
             return new Result<string>(bookId);
         }
@@ -124,8 +151,7 @@ namespace Bookstore.API.Services
         public async Task<Result<Unit>> AddReview(
             string review,
             string bookId,
-            string userId,
-            string serverUrl)
+            string userId)
         {
             var ex = await _bookRepository.GetReview(userId, bookId);
 
@@ -144,7 +170,7 @@ namespace Bookstore.API.Services
             UserReview userReview = new(
                 userId,
                 user.Name,
-                user.Image is not null ? $"{serverUrl}/api/user/images/{user.Image.PathValue}" : "");
+                user.Image is not null ? user.Image.Url : "");
 
             Review newReview = new(review, bookId, userReview);
 
@@ -204,7 +230,7 @@ namespace Bookstore.API.Services
                 Genre = x.Genre,
                 Name = x.Name,
                 Price = x.Price,
-                Cover = x.Cover
+                Cover = x.Cover.Url
             }).ToArr();
         }
 
@@ -221,8 +247,30 @@ namespace Bookstore.API.Services
                 Genre = x.Genre,
                 Name = x.Name,
                 Price = x.Price,
-                Cover = x.Cover
+                Cover = x.Cover.Url
             }).ToArr();
+        }
+
+        public async Task<Result<GetFileResponse>> GetCover(string id)
+        {
+            var objectId = id.Split('-').First();
+
+            var book = await _bookRepository.FindByIdAsync(objectId);
+
+            if (book is null)
+            {
+                return new Result<GetFileResponse>(new BookNotFoundException());
+            }
+
+            string coverPath = Path.Combine(_imageSettings.UploadPath, book.Cover.PathValue) + book.Cover.Extension;
+
+            byte[] cover = await File.ReadAllBytesAsync(coverPath);
+
+            return new GetFileResponse()
+            {
+                Data = cover,
+                ContentType = book.Cover.ContentType
+            };
         }
 
         public async Task<Result<GetFileResponse>> GetFragment(string id, string ext)
@@ -247,11 +295,11 @@ namespace Bookstore.API.Services
 
             string fragmentPath = Path.Combine(_bookSettings.UploadPath, fragment.PathValue) + extension;
 
-            byte[] image = await File.ReadAllBytesAsync(fragmentPath);
+            byte[] bytes = await File.ReadAllBytesAsync(fragmentPath);
 
             return new GetFileResponse()
             {
-                Data = image,
+                Data = bytes,
                 ContentType = fragment.ContentType,
                 FileName = fragment.PathValue + extension
             };
@@ -277,25 +325,17 @@ namespace Bookstore.API.Services
                 Genre = x.Genre,
                 Name = x.Name,
                 Price = x.Price,
-                Cover = x.Cover
+                Cover = x.Cover.Url
             }).ToArr();
         }
 
-        public async Task<Result<BookDTO>> GetOneBook(string id, string serverUrl)
+        public async Task<Result<BookDTO>> GetOneBook(string id)
         {
             var result = await _bookRepository.FindByIdAsync(id);
 
             if (result is null)
             {
                 return new Result<BookDTO>(new BookNotFoundException());
-            }
-
-            List<string> paths = new();
-
-            foreach (var item in result.FragmentPaths)
-            {
-                string path = $"{serverUrl}/api/books/fragments/{item.PathValue}/{item.Extension}";
-                paths.Add(path);
             }
 
             return new BookDTO
@@ -310,8 +350,8 @@ namespace Bookstore.API.Services
                 Language = result.Language,
                 Pages = result.Pages,
                 PublishDate = result.PublishDate,
-                Cover = result.Cover,
-                FragmentPaths = paths.ToArray()
+                Cover = result.Cover.Url,
+                FragmentPaths = result.FragmentPaths.Select(x => x.Url).ToArray()
             };
         }
 
@@ -378,7 +418,7 @@ namespace Bookstore.API.Services
                 Genre = x.Genre,
                 Name = x.Name,
                 Price = x.Price,
-                Cover = x.Cover,
+                Cover = x.Cover.Url,
             }).ToArr();
         }
 
@@ -400,7 +440,7 @@ namespace Bookstore.API.Services
                 Genre = x.Genre,
                 Name = x.Name,
                 Price = x.Price,
-                Cover = x.Cover,
+                Cover = x.Cover.Url,
             }).ToArr();
         }
 
@@ -531,6 +571,27 @@ namespace Bookstore.API.Services
             }
 
             return "success";
+        }
+
+        private Result<string> ValidateCover(IFormFile file)
+        {
+            if (file is null)
+            {
+                return new Result<string>(new InvalidFileException("Uploading file is empty"));
+            }
+
+            if (file.Length > _imageSettings.ImageMaxSizeInBytes)
+            {
+                return new Result<string>(
+                    new InvalidFileException($"The total file size should not exceed {_imageSettings.ImageMaxSizeInBytes / _imageSettings.BytesInMb} MB"));
+            }
+
+            if (!_imageSettings.AllowedImageFormats.Contains(file.ContentType))
+            {
+                return new Result<string>(new InvalidFileException($"Not supported image format"));
+            }
+
+            return string.Empty;
         }
     }
 }

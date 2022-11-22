@@ -14,10 +14,10 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<Unit>> DeleteUser(string email);
         Task<Result<Unit>> ChangeName(string id, string newName);
         Task<Result<string>> UpdateImage(string id, IFormFile image, string serverUrl);
-        Task<Result<UserDataResponse>> GetUserData(string id, string serverUrl);
+        Task<Result<UserDataResponse>> GetUserData(string id);
         Task<Result<GetFileResponse>> GetImage(string id);
         Task<Result<Unit>> AddToFavourite(string id, string bookId);
         Task<Result<Unit>> RemoveFromFavourite(string id, string bookId);
-        Task<Result<Arr<UserDataResponse>>> GetAllUsers(string serverUrl);
+        Task<Result<Arr<UserDataResponse>>> GetAllUsers();
     }
 }

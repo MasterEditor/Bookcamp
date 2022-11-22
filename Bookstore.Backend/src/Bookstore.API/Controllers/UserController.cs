@@ -6,8 +6,10 @@ using Bookstore.API.Models.LoginUser;
 using Bookstore.API.Models.SignupUser;
 using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
+using Bookstore.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Options;
 
 namespace Bookstore.API.Controllers
 {
@@ -18,11 +20,16 @@ namespace Bookstore.API.Controllers
     {
         private readonly IUserService _userService;
         private readonly IAdminService _adminService;
+        private readonly AdminSettings _adminSettings;
 
-        public UserController(IUserService userService, IAdminService adminService)
+        public UserController(
+            IUserService userService,
+            IAdminService adminService,
+            IOptions<AdminSettings> adminOptions)
         {
             _userService = userService;
             _adminService = adminService;
+            _adminSettings = adminOptions.Value;
         }
 
         [AllowAnonymous]
@@ -51,7 +58,7 @@ namespace Bookstore.API.Controllers
                     HttpOnly = true,
                     SameSite = SameSiteMode.None,
                 };
-                
+
                 CookieOptions roleCookieOptions = new()
                 {
                     Path = "/",
@@ -64,7 +71,7 @@ namespace Bookstore.API.Controllers
 
                 Response.Cookies.Append("bc_token", success, tokenCookieOptions);
 
-                if (request.Email == "admin")
+                if (request.Email == _adminSettings.Login)
                 {
                     Response.Cookies.Append("bc_role", "Admin", roleCookieOptions);
                     return Ok(new Response<string>("Admin"));
@@ -125,9 +132,7 @@ namespace Bookstore.API.Controllers
         {
             string id = HttpContext.GetUserId();
 
-            var serverUrl = $"{Request.Scheme}://{Request.Host}";
-
-            var response = await _userService.GetUserData(id, serverUrl);
+            var response = await _userService.GetUserData(id);
 
             return response.ToOk();
         }
@@ -165,9 +170,7 @@ namespace Bookstore.API.Controllers
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> GetAllUsers()
         {
-            var serverUrl = $"{Request.Scheme}://{Request.Host}";
-
-            var response = await _userService.GetAllUsers(serverUrl);
+            var response = await _userService.GetAllUsers();
 
             return response.ToOk();
         }
@@ -180,5 +183,5 @@ namespace Bookstore.API.Controllers
 
             return response.ToOk();
         }
-    } 
+    }
 }

@@ -9,10 +9,11 @@ interface ProtectedRouteProps {
 function ProtectedRout({ allowedRoles }: ProtectedRouteProps) {
   const name = localStorage.getItem("user_name");
   const [cookies] = useCookies(["bc_role"]);
+  console.log(name);
 
   return allowedRoles.find((allowed) => allowed === cookies.bc_role) ? (
     <Outlet />
-  ) : name !== "" ? (
+  ) : name ? (
     <Navigate to="/unauthorized" />
   ) : (
     <Navigate to="/login" />

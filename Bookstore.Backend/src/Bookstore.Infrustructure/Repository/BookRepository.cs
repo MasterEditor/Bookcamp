@@ -39,8 +39,8 @@ namespace Bookstore.Infrustructure.Repository
 
         public async Task DeleteReviewsAndRatingsByBookId(string id)
         {
-            await _reviewCollection.DeleteManyAsync(x => x.BookId == id);   
-            await _ratingCollection.DeleteManyAsync(x => x.BookId == id);   
+            await _reviewCollection.DeleteManyAsync(x => x.BookId == id);
+            await _ratingCollection.DeleteManyAsync(x => x.BookId == id);
         }
 
         public async Task DeleteReviewsAndRatingsByUserId(string id)
@@ -77,7 +77,7 @@ namespace Bookstore.Infrustructure.Repository
         {
             var rates = await _ratingCollection.Find(x => x.BookId == bookId).ToListAsync();
 
-            if(rates.Count > 0)
+            if (rates.Count > 0)
             {
                 return rates.Sum(x => x.Value) / (float)rates.Count;
             }
@@ -128,6 +128,14 @@ namespace Bookstore.Infrustructure.Repository
             var update = Builders<Rating>.Update.Set(x => x.Value, rate);
 
             await _ratingCollection.UpdateOneAsync(x => x.UserId == userId && x.BookId == bookId, update);
+        }
+
+        public async Task UpdateCoverAsync(ObjectId id, Domain.ValueObjects.Path cover)
+        {
+            var filter = Builders<Book>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Book>.Update.Set(x => x.Cover, cover);
+
+            await _collection.UpdateOneAsync(filter, update);
         }
     }
 }

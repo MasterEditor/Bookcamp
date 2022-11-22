@@ -1,20 +1,20 @@
 using System.Reflection;
-using Bookstore.Domain.Models;
-using Bookstore.Infrustructure;
-using FluentValidation.AspNetCore;
-using Microsoft.OpenApi.Models;
-using Serilog;
+using System.Security.Claims;
+using System.Text;
+using System.Text.Json;
 using Bookstore.API;
 using Bookstore.API.Converters;
-using Microsoft.AspNetCore.Mvc;
-using FluentValidation;
-using Bookstore.Domain.Mongo.Maps;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Security.Claims;
 using Bookstore.API.Middlewares;
-using System.Text.Json;
+using Bookstore.Domain.Models;
+using Bookstore.Domain.Mongo.Maps;
+using Bookstore.Infrustructure;
+using FluentValidation;
+using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
+using Microsoft.OpenApi.Models;
+using Serilog;
 
 Log.Logger = new LoggerConfiguration()
     .CreateBootstrapLogger();
@@ -81,7 +81,8 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["TokenSettings:Issuer"],
         RequireExpirationTime = true,
         ValidateLifetime = true,
-        LifetimeValidator = (DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters) => {
+        LifetimeValidator = (DateTime? notBefore, DateTime? expires, SecurityToken securityToken, TokenValidationParameters validationParameters) =>
+        {
             var clonedParameters = validationParameters.Clone();
             clonedParameters.LifetimeValidator = null;
             try

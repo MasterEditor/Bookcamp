@@ -11,6 +11,7 @@ function AddBook() {
   const bookId = useInput("", REQUIRED);
   const [alertHidden, setAlertHidden] = useState(true);
   const [fragments, setFragments] = useState<FileList>();
+  const [cover, setCover] = useState<File>();
 
   const [addBook, { isLoading, isSuccess, isError }] =
     booksApi.useAddBookMutation();
@@ -24,6 +25,8 @@ function AddBook() {
     for (let i = 0; i < fragments?.length!; i++) {
       formData.append("fragments", fragments![i]);
     }
+
+    formData.append("cover", cover!);
 
     addBook(formData);
   };
@@ -45,6 +48,15 @@ function AddBook() {
 
   const alertDissmiss = () => {
     setAlertHidden(true);
+  };
+
+  const onCoverChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileCover = event.target.files && event.target.files[0];
+    if (!fileCover) {
+      return;
+    }
+
+    setCover(fileCover);
   };
 
   return (
@@ -91,6 +103,21 @@ function AddBook() {
               className="mb-6"
               onChange={onFragmentsChange}
               multiple={true}
+            />
+
+            <label
+              htmlFor="cover"
+              className="block text-gray-700 text-sm font-bold mb-2"
+            >
+              Choose the cover
+            </label>
+            <input
+              id="cover"
+              type="file"
+              accept=".png, .jpg, .jpeg"
+              className="mb-6"
+              onChange={onCoverChange}
+              multiple={false}
             />
 
             <button

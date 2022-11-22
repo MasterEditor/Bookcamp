@@ -17,7 +17,7 @@ namespace Bookstore.Domain.Aggregates.BookAggregate
         public string Language { get; private set; }
         public string Genre { get; private set; }
         public ValueObjects.Path[] FragmentPaths { get; private set; }
-        public string Cover { get; private set; }
+        public ValueObjects.Path Cover { get; private set; }
         public DateTime AddedAt { get; private set; }
 
         public Book(
@@ -29,8 +29,7 @@ namespace Bookstore.Domain.Aggregates.BookAggregate
             int pages,
             string about,
             string language,
-            string genre,
-            string cover
+            string genre
             )
         {
             Name = name;
@@ -43,7 +42,6 @@ namespace Bookstore.Domain.Aggregates.BookAggregate
             Language = language;
             Genre = genre;
             AddedAt = DateTime.UtcNow;
-            Cover = cover;
         }
     }
 }
