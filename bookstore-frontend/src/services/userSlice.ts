@@ -24,10 +24,10 @@ export const userSlice = createSlice({
   reducers: {
     updateUser(state, action: PayloadAction<IUser>) {
       state.user = action.payload;
+      localStorage.setItem("user_name", action.payload.name!);
     },
     storeImage(state, action: PayloadAction<string>) {
       state.user.imageUrl = action.payload;
-      localStorage.setItem("user_image", action.payload);
     },
     updateName(state, action: PayloadAction<string>) {
       state.user.name = action.payload;

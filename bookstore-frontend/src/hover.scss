@@ -5,6 +5,27 @@ $black: #282936;
     transition: $property $duration $ease;
   }
 
+  @mixin respond-to($media) {
+    @if $media == handhelds {
+      @media only screen and (max-width: 479px) { @content; }
+    }
+    @else if $media == wide-handhelds {
+      @media only screen and (min-width: 480px) and (max-width: 767px) { @content; }
+    }
+    @else if $media == tablets {
+      @media only screen and (min-width: 768px) and (max-width: 1023px) { @content; }
+    }
+    @else if $media == large {
+      @media only screen and (min-width: 1024px) and (max-width: 1279px) { @content; } 
+    }
+    @else if $media == extra-large {
+      @media only screen and (min-width: 1280px) and (max-width: 1535px) { @content; } 
+    }
+    @else if $media == extra-large-2 {
+      @media only screen and (min-width: 1536px) { @content; } 
+    }
+  }
+
 button {
     position: relative;
     display: inline-block;
@@ -20,6 +41,8 @@ button {
     &.learn-more {
       height: auto;
       .circle {
+        @include respond-to(wide-handhelds) {display: none}
+        @include respond-to(tablets) {display: none}
         @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
         position: relative;
         display: block;
@@ -57,12 +80,24 @@ button {
       }
       .button-text {
         @include transition(all, 0.45s, cubic-bezier(0.65,0,.076,1));
+        @include respond-to(wide-handhelds) {
+          padding: none;
+          margin: 0 7rem 0 0;
+          line-height: normal;
+          text-transform: none;
+        }
+        @include respond-to(tablets) {
+          padding: none;
+          margin: 0 7rem 0 0;
+          line-height: normal;
+          text-transform: none;
+        }
         position: absolute;
         top: 0;
         left: 0;
         right: 0;
         bottom: 0;
-        padding: 0.75rem 0;
+        padding: 0.6rem 0;
         margin: 0 0 0 1.85rem;
         color: $black;
         font-weight: 700;
@@ -82,6 +117,8 @@ button {
         }
       }
       .button-text {
+        @include respond-to(wide-handhelds) {color: $black}
+        @include respond-to(tablets) {color: $black}
         color: $white;
       }
     }

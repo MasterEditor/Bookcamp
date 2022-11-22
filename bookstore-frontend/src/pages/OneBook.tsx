@@ -194,6 +194,13 @@ function OneBook() {
     }
   };
 
+  const handleAuthorBooks = () => {
+    navigate({
+      pathname: "/books",
+      search: `?${createSearchParams({ keywords: book?.author! })}`,
+    });
+  };
+
   return (
     <>
       {cookies.bc_role === ADMIN ? <AdminHeader /> : <Header />}
@@ -202,8 +209,8 @@ function OneBook() {
           <Breadcrumb.Item onClick={() => handleBack("")}>
             <p className="cursor-pointer hover:font-bold">Books</p>
           </Breadcrumb.Item>
-          <Breadcrumb.Item onClick={() => handleBack("Fantasy")}>
-            <p className="cursor-pointer hover:font-bold">Fantasy</p>
+          <Breadcrumb.Item onClick={() => handleBack(book?.genre!)}>
+            <p className="cursor-pointer hover:font-bold">{book?.genre}</p>
           </Breadcrumb.Item>
           <Breadcrumb.Item>{book?.name}</Breadcrumb.Item>
         </Breadcrumb>
@@ -218,14 +225,14 @@ function OneBook() {
       </div>
 
       <div className="flex flex-col mb-10">
-        <div className="flex flex-row justify-start mt-16 mx-16 border-b border-[#ced4da] pb-10">
-          <div className="basis-2/4 flex justify-center">
+        <div className="flex flex-col lg:flex-row justify-start mt-16 mx-5 2xl:mx-16 border-b border-[#ced4da] pb-10">
+          <div className="basis-2/4 flex justify-center mb-10 lg:mb-0 mr-5 xl:mr-0">
             <img
               src={book?.cover && book?.cover}
               className="w-[25rem] h-[35rem] mt-3"
             />
           </div>
-          <div className="flex flex-col basis-3/4 mr-[6rem]">
+          <div className="flex flex-col basis-3/4 xl:mr-[6rem]">
             {showAlert && (
               <Alert color="info">
                 <span>
@@ -235,7 +242,7 @@ function OneBook() {
               </Alert>
             )}
             <div className="flex flex-row justify-between">
-              <h1 className="font-light text-[2.5rem] w-[30rem]">
+              <h1 className="font-light text-[1.5rem] lg:text-[2.5rem] lg:w-[30rem]">
                 {book?.name}
               </h1>
               <div className="flex flex-row justify-center items-center">
@@ -310,10 +317,10 @@ function OneBook() {
             <p className="text-sm mt-2 break-words">
               {book?.about && parse(book?.about!)}
             </p>
-            <div className="flex justify-center items-center mb-10 mt-10 w-fit h-fit py-3 px-5 font-bold text-2xl rounded-full bg-[#e8c1ff]">
+            <div className="flex justify-center items-center my-5 lg:mb-10 lg:mt-10 w-fit h-fit py-3 px-5 font-bold text-2xl rounded-full bg-[#e8c1ff]">
               <p>{book?.price !== 0 ? `${book?.price}$` : "free"}</p>
             </div>
-            <Menu as="div" className="relative inline-block text-left mt-4">
+            <Menu as="div" className="relative inline-block text-left lg:mt-4">
               {({ open }) => (
                 <>
                   <div>
@@ -385,7 +392,7 @@ function OneBook() {
         </div>
         {/* Books */}
         <div className="flex flex-col mt-6 px-16 border-b border-[#ced4da] pb-10 bg-[#ededed]">
-          <p className="mt-5 mb-10 text-3xl">From the publisher</p>
+          <p className="mt-5 mb-10 text-xl lg:text-3xl">From the publisher</p>
           <div className="flex w-full h-full flex-row justify-center">
             {authorBooks &&
               authorBooks.map((item) => (
@@ -400,28 +407,35 @@ function OneBook() {
               ))}
           </div>
           <div className="flex w-full justify-end">
-            <Link to="/books" className="mt-7">
-              <button className="learn-more text-sm text-left w-[10rem]">
-                <span className="circle" aria-hidden="true">
-                  <span className="icon arrow"></span>
-                </span>
-                <span className="button-text">See all</span>
-              </button>
-            </Link>
+            <button
+              className="learn-more text-sm mt-7 text-left w-[10rem]"
+              onClick={handleAuthorBooks}
+            >
+              <span className="circle" aria-hidden="true">
+                <span className="icon arrow"></span>
+              </span>
+              <span className="button-text">See all</span>
+            </button>
           </div>
         </div>
         {/* Reviews */}
         <div className="flex flex-col mt-6 mx-16" id="reviews">
-          <p className="mt-5 mb-10 text-3xl">Reviews</p>
+          <p className="mt-5 mb-10 text-xl lg:text-3xl">Reviews</p>
           <div className="flex flex-row justify-start">
             {imageUrl ? (
-              <img src={imageUrl} className="rounded-full h-12 w-12 mr-5" />
+              <img
+                src={imageUrl}
+                className="hidden lg:block rounded-full h-12 w-12 mr-5"
+              />
             ) : (
-              <FaUserCircle className="text-[3rem] mr-5" />
+              <FaUserCircle className="hidden lg:block text-[3rem] mr-5" />
             )}
-            <form className="flex flex-col w-[60%]" onSubmit={handleSubmit}>
+            <form
+              className="flex flex-col w-[100%] xl:w-[60%]"
+              onSubmit={handleSubmit}
+            >
               <textarea
-                className="rounded w-[50rem] h-[5rem] overflow-auto"
+                className="rounded 2xl:w-[50rem] h-[5rem] overflow-auto"
                 placeholder="Your review"
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
@@ -434,7 +448,7 @@ function OneBook() {
                   256 symbols
                 </p>
               )}
-              <div className="flex justify-end mt-4 mr-8">
+              <div className="flex justify-end mt-4 2xl:mr-8">
                 {favourites ? (
                   <button
                     type="submit"

@@ -64,23 +64,23 @@ function Main() {
     <div className="flex flex-col justify-center w-full h-full">
       <div
         style={styles}
-        className="flex flex-col justify-center items-center h-[50rem] text-white"
+        className="flex flex-col justify-center items-center h-[30rem] xl:h-[50rem] text-white"
       >
-        <h1 className="text-[3rem] mb-10 font-extralight w-[40rem] text-center animate-pulse-slow">
+        <h1 className="text-[2rem] xl:text-[3rem] mb-10 font-extralight w-[40rem] text-center animate-pulse-slow">
           Join unique worlds and exciting stories with us
         </h1>
         <Link
           to="/signup"
-          className="w-[10rem] slide py-3 text-center font-medium border-white border-2 but-anim"
+          className="w-[5rem] lg:w-[10rem] text-sm lg:text-base slide py-1 xl:py-3 text-center font-medium border-white border-2 but-anim"
         >
           Sign up
         </Link>
       </div>
-      <div className="flex flex-row bg-[#E5E5E5] h-[40rem] text-[#0b090a]">
-        <div className="flex justify-center items-center basis-1/2">
+      <div className="flex flex-row bg-[#E5E5E5] h-[25rem] xl:h-[40rem] text-[#0b090a]">
+        <div className="flex justify-center ml-5 items-center basis-1/2">
           <div className={listItem.imgStyle}></div>
         </div>
-        <div className="flex flex-col text-[4rem] font-light justify-center basis-1/2">
+        <div className="flex flex-col text-[1.5rem] ml-5 lg:text-[2.5rem] xl:text-[4rem] font-light justify-center basis-1/2">
           {listItems.map((item) => (
             <p
               key={item.id}
@@ -107,32 +107,34 @@ function Main() {
             </p>
           ))}
           <Link to="/books">
-            <button className="learn-more text-sm text-left mt-5 w-[15rem]">
+            <button className="learn-more text-sm text-left mt-5 w-[18rem]">
               <span className="circle" aria-hidden="true">
                 <span className="icon arrow"></span>
               </span>
-              <span className="button-text">See all categories</span>
+              <span className="underline text-lg italic lg:not-italic lg:no-underline button-text">
+                See all categories
+              </span>
             </button>
           </Link>
         </div>
       </div>
-      <div className="flex flex-col bg-[#caf0f8] h-[45rem] relative">
-        <h1 className="mt-10 text-center text-[2rem] basis-1/4">
+      <div className="flex flex-col bg-[#caf0f8] h-[25rem] lg:h-[30rem] xl:h-[45rem] relative">
+        <h1 className="mt-5 xl:mt-10 text-center text-xl xl:text-[2rem] mb-6 xl:mb-0 lg:basis-1/4">
           Popular books
         </h1>
         <div className="flex flex-row ml-10">
-          <div className="flex flex-col justify-center pl-8 text-white bg-[#000814] w-[35rem] h-[22rem]">
-            <h2 className="text-2xl tracking-wider mb-7 font-light">
+          <div className="flex flex-col justify-center pl-8 text-white bg-[#000814] w-[21rem] lg:w-[25rem] h-[15rem] xl:w-[35rem] xl:h-[22rem]">
+            <h2 className="xl:text-xl tracking-wider mb-7 font-light">
               Be a part of famous works
             </h2>
-            <p className="mb-7 text-sm w-[30rem]">
+            <p className="mb-7 text-[0.5rem] lg:text-[0.6rem] lg:w-[20rem] xl:text-sm w-[15rem] xl:w-[30rem]">
               Get the most famous and popular books from a variety of authors.
               Become a part of unimaginable worlds and experience the spirit of
               adventure, together with your loved heroes
             </p>
             <Link
               to="/books"
-              className="w-[14rem] hover:shadow-button py-3 text-sm text-center border-white border-2 but-anim"
+              className="w-[14rem] xl:hover:shadow-button py-1 xl:py-3 text-[0.6rem] xl:text-sm text-center border-white border-2 but-anim"
             >
               SEE ALL
             </Link>
@@ -141,24 +143,26 @@ function Main() {
         <img
           src={rateBooks[0] && rateBooks[0].cover}
           alt=""
-          className="absolute w-[22rem] h-[30rem] bottom-20 left-[36rem] z-10 cursor-pointer raise but-anim"
+          className="hidden lg:block absolute w-[12rem] h-[20rem] lg:w-[15rem] lg:h-[23rem] xl:w-[18rem] xl:h-[27rem] 2xl:w-[22rem] 2xl:h-[30rem] xl:bottom-20 xl:left-[35rem] lg:bottom-5 lg:left-[25rem] z-10 cursor-pointer raise but-anim"
           onClick={() => handleBookClick(rateBooks[0].id)}
         />
         <img
           src={rateBooks[1] && rateBooks[1].cover}
           alt=""
-          className="absolute w-[22rem] h-[30rem] bottom-5 left-[52rem] cursor-pointer raise but-anim"
+          className="hidden md:block absolute w-[12rem] h-[20rem] 2xl:w-[22rem] lg:w-[15rem] xl:w-[18rem] xl:h-[27rem] lg:h-[23rem] 2xl:h-[30rem] md:bottom-2 2xl:bottom-5 md:right-[11rem] xl:bottom-10 xl:left-[47rem] 2xl:left-[52rem] cursor-pointer raise but-anim"
           onClick={() => handleBookClick(rateBooks[1].id)}
         />
         <img
           src={rateBooks[2] && rateBooks[2].cover}
           alt=""
-          className="absolute w-[22rem] h-[30rem] bottom-20 right-[5.5rem] z-10 cursor-pointer raise but-anim"
+          className="absolute w-[12rem] h-[20rem] 2xl:w-[22rem] 2xl:h-[30rem] lg:w-[15rem] xl:w-[18rem] xl:h-[27rem] lg:h-[23rem] bottom-5 right-[2rem] xl:bottom-20 2xl:right-[5.5rem] z-10 cursor-pointer raise but-anim"
           onClick={() => handleBookClick(rateBooks[2].id)}
         />
       </div>
-      <div className="flex flex-col pb-5 bg-[#E5E5E5] min-h-[40rem] text-[#0b090a]">
-        <h1 className="my-5 text-center text-[2rem]">New in store</h1>
+      <div className="flex flex-col pb-5 bg-[#E5E5E5] min-h-[20rem] xl:min-h-[40rem] text-[#0b090a]">
+        <h1 className="my-5 text-center text-xl xl:text-[2rem]">
+          New in store
+        </h1>
         <div className="w-full flex flex-row flex-wrap justify-center">
           {newBooksLoading ? (
             <FadeLoader className="mt-10" />
@@ -167,8 +171,8 @@ function Main() {
           ) : (
             books.map((item) => (
               <div
-                className="basis-1/5 bg-[#f3f3f3] my-5 mx-16 cursor-pointer but-anim
-               hover:translate-y-[-0.5rem] hover:rotate-1 hover:shadow-[5px_5px_0px_0px_rgba(213,180,175)]"
+                className="xl:basis-1/5 bg-[#f3f3f3] my-5 mx-2 xl:mx-16 cursor-pointer but-anim
+               xl:hover:translate-y-[-0.5rem] xl:hover:rotate-1 xl:hover:shadow-[5px_5px_0px_0px_rgba(213,180,175)]"
                 key={item.id}
                 onClick={() => handleBookClick(item.id)}
               >

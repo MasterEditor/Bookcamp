@@ -51,11 +51,11 @@ function Header() {
   };
 
   const handleScroll = (event: any) => {
-    if (window.scrollY % 10 !== 0) {
+    if (window.scrollY % 2 !== 0) {
       return;
     }
 
-    if (window.scrollY >= 300) {
+    if (window.scrollY >= 200) {
       setScrollLimit(true);
     } else {
       setScrollLimit(false);
@@ -80,20 +80,22 @@ function Header() {
           alt="logo"
           className={classNames(
             "but-anim",
-            scrollLimit ? "w-[3rem]" : "w-[5rem]"
+            scrollLimit ? "w-[2.5rem] lg:w-[3rem]" : "w-[3rem] lg:w-[5rem]"
           )}
         />
         <Link
           to="/"
           className={classNames(
             "font-bold but-anim",
-            scrollLimit ? "text-[1.7rem]" : "text-[2rem]"
+            scrollLimit
+              ? "text-[1rem] lg:text-[1.7rem]"
+              : "text-[1.3rem] lg:text-[2rem]"
           )}
         >
           bookcamp
         </Link>
       </div>
-      <div className="flex flex-row flex-1">
+      <div className="flex ml-10 lg:ml-0 flex-row flex-1">
         {!scrollLimit && (
           <form className="relative w-full" onSubmit={handleSubmit}>
             <input
@@ -102,9 +104,12 @@ function Header() {
               onChange={(e) => setSearch(e.target.value)}
               id="search"
               placeholder="Search books"
-              className="h-[2.5rem] text-sm w-full pl-3 bg-white rounded-xl focus:outline-none focus:ring-[0.1rem] focus:ring-slate-600"
+              className="lg:h-[2.5rem] h-[2rem] text-[0.6rem] lg:text-sm w-full pl-3 bg-white rounded-lg focus:outline-none focus:ring-[0.1rem] focus:ring-slate-600"
             />
-            <button type="submit" className="absolute right-4 top-[0.80rem]">
+            <button
+              type="submit"
+              className="absolute right-4 top-[0.5rem] lg:top-[0.80rem]"
+            >
               <FaSearch className="text-[#1d3557] but-anim text-base hover:translate-y-[-0.1rem]" />
             </button>
           </form>
@@ -117,11 +122,11 @@ function Header() {
             className={classNames(
               scrollLimit
                 ? "bg-none text-black font-bold underline hover:translate-y-[-3px]"
-                : "h-8 bg-slate-800 text-white hover:bg-slate-700",
-              "flex items-center px-7 rounded-2xl transition duration-300 ease-in-out"
+                : "h-7 lg:h-8 bg-slate-800 text-white hover:bg-slate-700",
+              "flex items-center px-7 rounded-lg transition duration-300 ease-in-out"
             )}
           >
-            <p className="text-[1rem]">Login</p>
+            <p className="text-[0.7rem] lg:text-[1rem]">Login</p>
           </Link>
         ) : (
           <Menu as="div" className="relative inline-block text-left">
@@ -130,11 +135,11 @@ function Header() {
                 <div>
                   <Menu.Button
                     className={classNames(
-                      scrollLimit ? "" : "bg-gray-700 text-white",
-                      "flex items-center but-anim justify-center h-10 px-4 py-2 rounded-xl"
+                      scrollLimit ? "" : "lg:bg-gray-700 lg:text-white",
+                      "flex items-center but-anim justify-center h-10 lg:px-4 lg:py-2 rounded-lg"
                     )}
                   >
-                    <p className="text-base max-w-[10rem] whitespace-nowrap text-ellipsis overflow-hidden">
+                    <p className="text-sm lg:text-base max-w-[10rem] whitespace-nowrap text-ellipsis overflow-hidden">
                       {user.name}
                     </p>
                     {user.imageUrl ? (
@@ -146,9 +151,9 @@ function Header() {
                       <FaUserCircle className="text-3xl ml-3 mr-1" />
                     )}
                     {open ? (
-                      <RiArrowDropUpFill className="text-2xl" />
+                      <RiArrowDropUpFill className="text-lg" />
                     ) : (
-                      <RiArrowDropDownFill className="text-2xl" />
+                      <RiArrowDropDownFill className="text-lg" />
                     )}
                   </Menu.Button>
                 </div>

@@ -50,7 +50,7 @@ namespace Bookstore.API.Services
                 && x.Author == volume.VolumeInfo.Authors[0]
                 && x.AddedAt > compareDate);
 
-            if(exBook is not null)
+            if (exBook is not null)
             {
                 return new Result<string>(new BookAlreadyExistsException());
             }
@@ -64,7 +64,7 @@ namespace Bookstore.API.Services
 
             string? language = volume.VolumeInfo.Language.ToLanguage();
 
-            if(language is null)
+            if (language is null)
             {
                 return new Result<string>(new FormatException());
             }
@@ -123,27 +123,27 @@ namespace Bookstore.API.Services
 
         public async Task<Result<Unit>> AddReview(
             string review,
-            string bookId, 
+            string bookId,
             string userId,
             string serverUrl)
         {
             var ex = await _bookRepository.GetReview(userId, bookId);
 
-            if(ex is not null)
+            if (ex is not null)
             {
                 return new Result<Unit>(new ReviewAlreadyExistsException());
             }
 
             var user = await _userRepository.FindByIdAsync(userId);
 
-            if(user is null)
+            if (user is null)
             {
                 return new Result<Unit>(new UserNotFoundException());
             }
 
             UserReview userReview = new(
-                userId, 
-                user.Name, 
+                userId,
+                user.Name,
                 user.Image is not null ? $"{serverUrl}/api/user/images/{user.Image.PathValue}" : "");
 
             Review newReview = new(review, bookId, userReview);
@@ -173,19 +173,29 @@ namespace Bookstore.API.Services
         {
             Expression<Func<Book, bool>> expression = _ => true;
             FilterDefinition<Book>? filter = null;
+            var builder = Builders<Book>.Filter;
 
-            if(keywords is not null)
+            if (keywords is not null)
             {
-                var builder = Builders<Book>.Filter;
-                filter = builder.Regex(nameof(Book.Name), new MongoDB.Bson.BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
+                filter = builder.Regex(nameof(Book.Name), new BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
             }
 
-            if(genre is not null)
+            if (genre is not null)
             {
                 expression = x => string.Equals(genre, x.Genre);
             }
 
             var result = await _bookRepository.FilterByWithPagesAsync(page, pageSize, filter ?? expression);
+
+            if (result.Count == 0)
+            {
+                if (keywords is not null)
+                {
+                    filter = builder.Regex(nameof(Book.Author), new BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
+
+                    result = await _bookRepository.FilterByWithPagesAsync(page, pageSize, filter);
+                }
+            }
 
             return result.Select(x => new BookDTO()
             {
@@ -230,7 +240,7 @@ namespace Bookstore.API.Services
 
             string extension = fragment.Extension;
 
-            if(extension == ".fb2")
+            if (extension == ".fb2")
             {
                 extension = ".zip";
             }
@@ -275,14 +285,14 @@ namespace Bookstore.API.Services
         {
             var result = await _bookRepository.FindByIdAsync(id);
 
-            if(result is null)
+            if (result is null)
             {
                 return new Result<BookDTO>(new BookNotFoundException());
             }
 
             List<string> paths = new();
 
-            foreach(var item in result.FragmentPaths)
+            foreach (var item in result.FragmentPaths)
             {
                 string path = $"{serverUrl}/api/books/fragments/{item.PathValue}/{item.Extension}";
                 paths.Add(path);
@@ -311,11 +321,11 @@ namespace Bookstore.API.Services
 
             long pages = 1;
 
-            if(count > pageSize)
+            if (count > pageSize)
             {
                 pages = count / pageSize;
 
-                if(count % pageSize != 0)
+                if (count % pageSize != 0)
                 {
                     pages++;
                 }
@@ -328,7 +338,7 @@ namespace Bookstore.API.Services
         {
             var rating = await _bookRepository.GetRating(userId, bookId);
 
-            if(rating is null)
+            if (rating is null)
             {
                 return 0;
             }
@@ -340,7 +350,7 @@ namespace Bookstore.API.Services
         {
             var reviews = await _bookRepository.GetAllReviewsByBook(bookId);
 
-            if(reviews is null
+            if (reviews is null
                 || reviews.Count == 0)
             {
                 return new Result<Arr<ReviewDTO>>(new Arr<ReviewDTO>());
@@ -398,7 +408,7 @@ namespace Bookstore.API.Services
         {
             var review = await _bookRepository.GetReview(userId, bookId);
 
-            if(review is null)
+            if (review is null)
             {
                 return false;
             }
@@ -412,14 +422,14 @@ namespace Bookstore.API.Services
 
             int years = subs.Days / 365;
 
-            if(years >= 1)
+            if (years >= 1)
             {
-                if(years == 1)
+                if (years == 1)
                 {
                     return "1 year ago";
                 }
 
-                if(years > 1)
+                if (years > 1)
                 {
                     return $"{years} years ago";
                 }
@@ -427,29 +437,29 @@ namespace Bookstore.API.Services
 
             int months = subs.Days / 29;
 
-            if(months >= 1)
+            if (months >= 1)
             {
-                if(months == 1)
+                if (months == 1)
                 {
                     return "1 month ago";
                 }
 
-                if(months > 1)
+                if (months > 1)
                 {
                     return $"{months} months ago";
                 }
             }
-            
+
             int weeks = subs.Days / 7;
 
-            if(weeks >= 1)
+            if (weeks >= 1)
             {
-                if(weeks == 1)
+                if (weeks == 1)
                 {
                     return "1 week ago";
                 }
 
-                if(weeks > 1)
+                if (weeks > 1)
                 {
                     return $"{weeks} weeks ago";
                 }
@@ -457,7 +467,7 @@ namespace Bookstore.API.Services
 
             int days = subs.Days / 1;
 
-            if(days >= 1)
+            if (days >= 1)
             {
                 if (days == 1)
                 {
@@ -470,27 +480,27 @@ namespace Bookstore.API.Services
                 }
             }
 
-            if(subs.Hours >= 1)
+            if (subs.Hours >= 1)
             {
-                if(subs.Hours == 1)
+                if (subs.Hours == 1)
                 {
                     return "1 hour ago";
                 }
 
-                if(subs.Hours > 1)
+                if (subs.Hours > 1)
                 {
                     return $"{subs.Hours} hours ago";
                 }
             }
 
-            if(subs.Minutes >= 1)
+            if (subs.Minutes >= 1)
             {
-                if(subs.Minutes == 1)
+                if (subs.Minutes == 1)
                 {
                     return "1 minute ago";
                 }
 
-                if(subs.Minutes > 1)
+                if (subs.Minutes > 1)
                 {
                     return $"{subs.Minutes} minutes ago";
                 }
@@ -507,7 +517,7 @@ namespace Bookstore.API.Services
                 return new Result<string>(new InvalidFileException("Uploading file array is empty"));
             }
 
-            foreach(var file in files)
+            foreach (var file in files)
             {
                 if (file is null)
                 {
