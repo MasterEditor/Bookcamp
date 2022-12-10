@@ -1,11 +1,8 @@
-﻿using System.Net;
-using Bookstore.Domain.Aggregates.BookAggregate;
-using Bookstore.Domain.Aggregates.UserAggregate;
+﻿using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Bookstore.Infrustructure.Repository
 {
@@ -136,6 +133,25 @@ namespace Bookstore.Infrustructure.Repository
             var update = Builders<Book>.Update.Set(x => x.Cover, cover);
 
             await _collection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task UpdateFragmentAsync(ObjectId id, Domain.ValueObjects.Path fragment)
+        {
+            var filter = Builders<Book>.Filter.And(
+                Builders<Book>.Filter.Eq(x => x.Id, id),
+                Builders<Book>.Filter.ElemMatch(x => x.FragmentPaths, x => x.Extension == fragment.Extension));
+
+            var update = Builders<Book>.Update.Set(x => x.FragmentPaths[-1], fragment);
+
+            await _collection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        public async Task DeleteFragmentAsync(ObjectId id, string extention)
+        {
+            var filter = Builders<Book>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Book>.Update.PullFilter(x => x.FragmentPaths, f => f.Extension == extention);
+
+            await _collection.FindOneAndUpdateAsync(filter, update);
         }
     }
 }

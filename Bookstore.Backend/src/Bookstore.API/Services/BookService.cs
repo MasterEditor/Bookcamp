@@ -4,6 +4,7 @@ using AutoMapper;
 using Bookstore.API.DTOs;
 using Bookstore.API.Extensions;
 using Bookstore.API.Models.GetImage;
+using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Exceptions;
@@ -456,6 +457,78 @@ namespace Bookstore.API.Services
             return true;
         }
 
+        public async Task<Result<string>> UpdateCover(IFormFile file, string bookId, string serverUrl)
+        {
+            var valid = ValidateCover(file);
+
+            if (valid.IsFaulted)
+            {
+                return valid;
+            }
+
+            var book = await _bookRepository.FindByIdAsync(bookId);
+
+            if (book is null)
+            {
+                return new Result<string>(new BookNotFoundException());
+            }
+
+            var uploadCoverResult = await _uploadService.UploadFile(file, _imageSettings.UploadPath, bookId);
+
+            Domain.ValueObjects.Path coverPath = new(
+                uploadCoverResult.UniqueName,
+                uploadCoverResult.Extension,
+                file.ContentType,
+                $"{serverUrl}/api/books/covers/{uploadCoverResult.UniqueName}");
+
+            await _bookRepository.UpdateCoverAsync(book.Id, coverPath);
+
+            return uploadCoverResult.UniqueName;
+        }
+
+        public async Task<Result<string>> UpdateFragment(IFormFile file, string bookId, string serverUrl)
+        {
+            var valid = ValidateFragment(file);
+
+            if (valid.IsFaulted)
+            {
+                return valid;
+            }
+
+            var book = await _bookRepository.FindByIdAsync(bookId);
+
+            if (book is null)
+            {
+                return new Result<string>(new BookNotFoundException());
+            }
+
+            var uploadResult = await _uploadService.UploadFile(file, _bookSettings.UploadPath, bookId);
+
+            Domain.ValueObjects.Path fragmentPath = new(
+                uploadResult.UniqueName,
+                uploadResult.Extension,
+                "application/zip",
+                $"{serverUrl}/api/books/fragments/{uploadResult.UniqueName}/{uploadResult.Extension}");
+
+            await _bookRepository.UpdateFragmentAsync(book.Id, fragmentPath);
+
+            return uploadResult.UniqueName;
+        }
+
+        public async Task<Result<Unit>> DeleteFragment(string extension, string bookId)
+        {
+            var book = await _bookRepository.FindByIdAsync(bookId);
+
+            if (book is null)
+            {
+                return new Result<Unit>(new BookNotFoundException());
+            }
+
+            await _bookRepository.DeleteFragmentAsync(book.Id, extension);
+
+            return Unit.Default;
+        }
+
         private string GetDateDifference(DateTime date)
         {
             TimeSpan subs = DateTime.UtcNow.Subtract(date);
@@ -570,7 +643,27 @@ namespace Bookstore.API.Services
                 }
             }
 
-            return "success";
+            return string.Empty;
+        }
+
+        private Result<string> ValidateFragment(IFormFile file)
+        {
+            if (file is null)
+            {
+                return new Result<string>(new InvalidFileException("Uploading file is empty"));
+            }
+
+            if (file is null)
+            {
+                return new Result<string>(new InvalidFileException("Uploading file is empty"));
+            }
+
+            if (!_bookSettings.AllowedBookFormats.Contains(file.ContentType))
+            {
+                return new Result<string>(new InvalidFileException($"Not supported book format"));
+            }
+
+            return string.Empty;
         }
 
         private Result<string> ValidateCover(IFormFile file)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useRef, useEffect, ChangeEvent } from "react";
 import {
   createSearchParams,
   Link,
@@ -31,6 +31,9 @@ import AdminHeader from "../components/AdminHeader";
 function OneBook() {
   const { id } = useParams();
 
+  const fragmentRef = useRef<HTMLInputElement>(null);
+  const [isCoverUpdate, setIsCoverUpdate] = useState(false);
+
   const { favourites, imageUrl, name } = useAppSelector(
     (state) => state.user.user
   );
@@ -58,6 +61,12 @@ function OneBook() {
   const { data: userRateData } = booksApi.useGetRatingQuery(id!);
   const { data: userReview } = booksApi.useGetReviewQuery(id!);
   const { data: reviewsData } = booksApi.useGetReviewsQuery(id!);
+  const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
+    booksApi.useDeleteFragmentMutation();
+  const [updateFragment, { isSuccess: updateFragmentSuccess }] =
+    booksApi.useUpdateFragmentMutation();
+  const [updateCover, { isSuccess: updateCoverSuccess }] =
+    booksApi.useUpdateCoverMutation();
 
   const [isReviewAdded, setIsReviedAdded] = useState(false);
 
@@ -201,6 +210,50 @@ function OneBook() {
     });
   };
 
+  const handleFragmentClick = (ext: string) => {
+    setIsCoverUpdate(false);
+    fragmentRef.current!.accept = ext;
+    fragmentRef.current!.click();
+  };
+
+  const coverUpdateClick = () => {
+    setIsCoverUpdate(true);
+    fragmentRef.current!.accept = ".png, .jpg, .jpeg, .gif, .tiff";
+    fragmentRef.current!.click();
+  };
+
+  const handleFragmentChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const fileObj = event.target.files && event.target.files[0];
+    if (!fileObj) {
+      return;
+    }
+
+    event.target.value = "";
+
+    const formData = new FormData();
+    formData.append("image", fileObj);
+
+    if (isCoverUpdate) {
+      updateCover({ id: book!.id, data: formData });
+    } else {
+      updateFragment({ id: book!.id, data: formData });
+    }
+  };
+
+  useEffect(() => {
+    if (updateFragmentSuccess || deleteFragmentSuccess || updateCoverSuccess) {
+      window.location.reload();
+    }
+  }, [updateFragmentSuccess, deleteFragmentSuccess, updateCoverSuccess]);
+
+  const handleFragmentDelete = (ext: string) => {
+    const res = window.confirm("Are you sure?");
+
+    if (res) {
+      deleteFragment({ id: book!.id, ext: ext });
+    }
+  };
+
   return (
     <>
       {cookies.bc_role === ADMIN ? <AdminHeader /> : <Header />}
@@ -226,11 +279,19 @@ function OneBook() {
 
       <div className="flex flex-col mb-10">
         <div className="flex flex-col lg:flex-row justify-start mt-16 mx-5 2xl:mx-16 border-b border-[#ced4da] pb-10">
-          <div className="basis-2/4 flex justify-center mb-10 lg:mb-0 mr-5 xl:mr-0">
+          <div className="basis-2/4 flex flex-col items-center justify-center mb-10 lg:mb-0 mr-5 xl:mr-0">
             <img
               src={book?.cover && book?.cover}
               className="w-[25rem] h-[35rem] mt-3"
             />
+            {cookies.bc_role === ADMIN && (
+              <button
+                className="mt-2 underline text-yellow-400"
+                onClick={coverUpdateClick}
+              >
+                Update cover
+              </button>
+            )}
           </div>
           <div className="flex flex-col basis-3/4 xl:mr-[6rem]">
             {showAlert && (
@@ -320,6 +381,14 @@ function OneBook() {
             <div className="flex justify-center items-center my-5 lg:mb-10 lg:mt-10 w-fit h-fit py-3 px-5 font-bold text-2xl rounded-full bg-[#e8c1ff]">
               <p>{book?.price !== 0 ? `${book?.price}$` : "free"}</p>
             </div>
+            <input
+              ref={fragmentRef}
+              onChange={handleFragmentChange}
+              id="file"
+              type="file"
+              className="hidden"
+              multiple={false}
+            />
             <Menu as="div" className="relative inline-block text-left lg:mt-4">
               {({ open }) => (
                 <>
@@ -351,13 +420,13 @@ function OneBook() {
                               <div className="flex flex-col items-start">
                                 {book.fragmentPaths.map((item, key) => (
                                   <button
-                                    className="flex flex-row justify-start w-full hover:text-[#ae2012] but-anim"
+                                    className="flex flex-row justify-start w-full but-anim"
                                     key={key}
                                   >
                                     {isLoggedIn ? (
                                       <a
                                         href={item}
-                                        className="w-full"
+                                        className="w-full hover:text-[#ae2012]"
                                         download={item}
                                       >
                                         {item.substring(
@@ -365,14 +434,44 @@ function OneBook() {
                                         )}
                                       </a>
                                     ) : (
-                                      <p
-                                        className="w-full"
-                                        onClick={handleShowAlert}
-                                      >
-                                        {item.substring(
-                                          item.lastIndexOf("/") + 1
+                                      <>
+                                        <p
+                                          className="w-full"
+                                          onClick={handleShowAlert}
+                                        >
+                                          {item.substring(
+                                            item.lastIndexOf("/") + 1
+                                          )}
+                                        </p>
+                                        {cookies.bc_role === ADMIN && (
+                                          <div className="flex">
+                                            <p
+                                              className="hover:text-yellow-400"
+                                              onClick={() =>
+                                                handleFragmentClick(
+                                                  item.substring(
+                                                    item.lastIndexOf("/") + 1
+                                                  )
+                                                )
+                                              }
+                                            >
+                                              Update
+                                            </p>
+                                            <p
+                                              className="mx-2 hover:text-red-800"
+                                              onClick={() =>
+                                                handleFragmentDelete(
+                                                  item.substring(
+                                                    item.lastIndexOf("/") + 1
+                                                  )
+                                                )
+                                              }
+                                            >
+                                              Delete
+                                            </p>
+                                          </div>
                                         )}
-                                      </p>
+                                      </>
                                     )}
                                   </button>
                                 ))}

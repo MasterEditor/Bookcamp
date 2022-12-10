@@ -119,5 +119,31 @@ export const booksApi = createApi({
         method: "DELETE",
       }),
     }),
+    deleteFragment: build.mutation<void, { id: string; ext: string }>({
+      query: (body) => ({
+        url: `${body.id}/delete-fragment/${body.ext}`,
+        method: "DELETE",
+      }),
+    }),
+    updateFragment: build.mutation<
+      IResponse<string>,
+      { id: string; data: FormData }
+    >({
+      query: (body) => ({
+        url: `${body.id}/update-fragment`,
+        method: "POST",
+        body: body.data,
+      }),
+    }),
+    updateCover: build.mutation<
+      IResponse<string>,
+      { id: string; data: FormData }
+    >({
+      query: (body) => ({
+        url: `${body.id}/update-cover`,
+        method: "POST",
+        body: body.data,
+      }),
+    }),
   }),
 });

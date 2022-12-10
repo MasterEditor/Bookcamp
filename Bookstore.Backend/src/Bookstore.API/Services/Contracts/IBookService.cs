@@ -1,6 +1,7 @@
 ﻿using Bookstore.API.DTOs;
 using Bookstore.API.Models.AddBook;
 using Bookstore.API.Models.GetImage;
+using Bookstore.API.Models.UploadImage;
 using Google.Apis.Books.v1.Data;
 using LanguageExt;
 using LanguageExt.Common;
@@ -34,5 +35,8 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<Unit>> DeleteReview(string id);
         Task<Result<bool>> IsUserAddedReview(string bookId, string userId);
         Result<long> GetPages(int pageSize);
+        Task<Result<string>> UpdateCover(IFormFile file, string bookId, string serverUrl);
+        Task<Result<string>> UpdateFragment(IFormFile file, string bookId, string serverUrl);
+        Task<Result<Unit>> DeleteFragment(string extension, string bookId);
     }
 }

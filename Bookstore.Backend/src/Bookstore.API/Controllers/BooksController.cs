@@ -4,17 +4,13 @@ using Bookstore.API.Models.AddBook;
 using Bookstore.API.Models.AddReview;
 using Bookstore.API.Models.GetBooks;
 using Bookstore.API.Models.Rate;
-using Bookstore.API.Services;
+using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
-using Bookstore.Domain.Common.Contants;
-using Bookstore.Domain.Models;
 using Google.Apis.Books.v1;
 using Google.Apis.Books.v1.Data;
 using Google.Apis.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Options;
-using Serilog;
 
 namespace Bookstore.API.Controllers
 {
@@ -224,6 +220,37 @@ namespace Bookstore.API.Controllers
         public async Task<IActionResult> DeleteBook([FromRoute] string id)
         {
             var response = await _booksService.DeleteBook(id);
+
+            return response.ToOk();
+        }
+
+        [HttpPost("{id}/update-cover")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> UpdateCover([FromForm] UploadImageRequest request, [FromRoute] string id)
+        {
+            var serverUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var response = await _booksService.UpdateCover(request.Image, id, serverUrl);
+
+            return response.ToOk();
+        }
+
+        [HttpPost("{id}/update-fragment")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> UpdateFragment([FromForm] UploadImageRequest request, [FromRoute] string id)
+        {
+            var serverUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var response = await _booksService.UpdateFragment(request.Image, id, serverUrl);
+
+            return response.ToOk();
+        }
+
+        [HttpDelete("{id}/delete-fragment/{ext}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> DeleteFragment([FromRoute] string id, [FromRoute] string ext)
+        {
+            var response = await _booksService.DeleteFragment(ext, id);
 
             return response.ToOk();
         }
