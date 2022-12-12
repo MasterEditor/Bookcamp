@@ -8,6 +8,7 @@ namespace Bookstore.Domain.Shared.Contracts
         Task UpdateFragmentsAsync(ObjectId id, ValueObjects.Path[] fragments);
         Task UpdateFragmentAsync(ObjectId id, ValueObjects.Path fragment);
         Task DeleteFragmentAsync(ObjectId id, string extention);
+        Task AddFragmentAsync(ObjectId id, ValueObjects.Path fragment);
         Task UpdateCoverAsync(ObjectId id, ValueObjects.Path cover);
         Task AddReview(Review review);
         Task UpdateReviewsByUserId(string id, string imageUrl);

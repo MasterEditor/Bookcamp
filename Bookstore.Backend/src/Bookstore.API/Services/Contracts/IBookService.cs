@@ -37,6 +37,7 @@ namespace Bookstore.API.Services.Contracts
         Result<long> GetPages(int pageSize);
         Task<Result<string>> UpdateCover(IFormFile file, string bookId, string serverUrl);
         Task<Result<string>> UpdateFragment(IFormFile file, string bookId, string serverUrl);
+        Task<Result<string>> AddFragment(IFormFile file, string bookId, string serverUrl);
         Task<Result<Unit>> DeleteFragment(string extension, string bookId);
     }
 }

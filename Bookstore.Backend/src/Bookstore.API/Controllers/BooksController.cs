@@ -226,22 +226,22 @@ namespace Bookstore.API.Controllers
 
         [HttpPost("{id}/update-cover")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> UpdateCover([FromForm] UploadImageRequest request, [FromRoute] string id)
+        public async Task<IActionResult> UpdateCover([FromForm] UploadFileRequest request, [FromRoute] string id)
         {
             var serverUrl = $"{Request.Scheme}://{Request.Host}";
 
-            var response = await _booksService.UpdateCover(request.Image, id, serverUrl);
+            var response = await _booksService.UpdateCover(request.File, id, serverUrl);
 
             return response.ToOk();
         }
 
         [HttpPost("{id}/update-fragment")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> UpdateFragment([FromForm] UploadImageRequest request, [FromRoute] string id)
+        public async Task<IActionResult> UpdateFragment([FromForm] UploadFileRequest request, [FromRoute] string id)
         {
             var serverUrl = $"{Request.Scheme}://{Request.Host}";
 
-            var response = await _booksService.UpdateFragment(request.Image, id, serverUrl);
+            var response = await _booksService.UpdateFragment(request.File, id, serverUrl);
 
             return response.ToOk();
         }
@@ -251,6 +251,17 @@ namespace Bookstore.API.Controllers
         public async Task<IActionResult> DeleteFragment([FromRoute] string id, [FromRoute] string ext)
         {
             var response = await _booksService.DeleteFragment(ext, id);
+
+            return response.ToOk();
+        }
+
+        [HttpPost("{id}/add-fragment")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> AddFragment([FromForm] UploadFileRequest request, [FromRoute] string id)
+        {
+            var serverUrl = $"{Request.Scheme}://{Request.Host}";
+
+            var response = await _booksService.AddFragment(request.File, id, serverUrl);
 
             return response.ToOk();
         }

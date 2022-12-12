@@ -153,5 +153,13 @@ namespace Bookstore.Infrustructure.Repository
 
             await _collection.FindOneAndUpdateAsync(filter, update);
         }
+
+        public async Task AddFragmentAsync(ObjectId id, Domain.ValueObjects.Path fragment)
+        {
+            var filter = Builders<Book>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Book>.Update.Push(x => x.FragmentPaths, fragment);
+
+            await _collection.FindOneAndUpdateAsync(filter, update);
+        }
     }
 }

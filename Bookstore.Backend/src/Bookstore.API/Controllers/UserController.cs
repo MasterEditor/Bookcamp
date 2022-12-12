@@ -99,13 +99,13 @@ namespace Bookstore.API.Controllers
         }
 
         [HttpPost("image")]
-        public async Task<IActionResult> UploadImage([FromForm] UploadImageRequest request)
+        public async Task<IActionResult> UploadImage([FromForm] UploadFileRequest request)
         {
             string id = HttpContext.GetUserId();
 
             var serverUrl = $"{Request.Scheme}://{Request.Host}";
 
-            var response = await _userService.UpdateImage(id, request.Image, serverUrl);
+            var response = await _userService.UpdateImage(id, request.File, serverUrl);
 
             return response.ToOk();
         }

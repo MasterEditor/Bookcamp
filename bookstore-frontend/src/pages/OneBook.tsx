@@ -33,6 +33,7 @@ function OneBook() {
 
   const fragmentRef = useRef<HTMLInputElement>(null);
   const [isCoverUpdate, setIsCoverUpdate] = useState(false);
+  const [isAddFragment, setIsAddFragment] = useState(false);
 
   const { favourites, imageUrl, name } = useAppSelector(
     (state) => state.user.user
@@ -67,6 +68,8 @@ function OneBook() {
     booksApi.useUpdateFragmentMutation();
   const [updateCover, { isSuccess: updateCoverSuccess }] =
     booksApi.useUpdateCoverMutation();
+  const [addFragment, { isSuccess: addFragmentSuccess }] =
+    booksApi.useAddNewFragmentMutation();
 
   const [isReviewAdded, setIsReviedAdded] = useState(false);
 
@@ -212,12 +215,14 @@ function OneBook() {
 
   const handleFragmentClick = (ext: string) => {
     setIsCoverUpdate(false);
+    setIsAddFragment(false);
     fragmentRef.current!.accept = ext;
     fragmentRef.current!.click();
   };
 
   const coverUpdateClick = () => {
     setIsCoverUpdate(true);
+    setIsAddFragment(false);
     fragmentRef.current!.accept = ".png, .jpg, .jpeg, .gif, .tiff";
     fragmentRef.current!.click();
   };
@@ -231,20 +236,34 @@ function OneBook() {
     event.target.value = "";
 
     const formData = new FormData();
-    formData.append("image", fileObj);
+    formData.append("file", fileObj);
 
     if (isCoverUpdate) {
       updateCover({ id: book!.id, data: formData });
     } else {
-      updateFragment({ id: book!.id, data: formData });
+      if (isAddFragment) {
+        addFragment({ id: book!.id, data: formData });
+      } else {
+        updateFragment({ id: book!.id, data: formData });
+      }
     }
   };
 
   useEffect(() => {
-    if (updateFragmentSuccess || deleteFragmentSuccess || updateCoverSuccess) {
+    if (
+      updateFragmentSuccess ||
+      deleteFragmentSuccess ||
+      updateCoverSuccess ||
+      addFragmentSuccess
+    ) {
       window.location.reload();
     }
-  }, [updateFragmentSuccess, deleteFragmentSuccess, updateCoverSuccess]);
+  }, [
+    updateFragmentSuccess,
+    deleteFragmentSuccess,
+    updateCoverSuccess,
+    addFragmentSuccess,
+  ]);
 
   const handleFragmentDelete = (ext: string) => {
     const res = window.confirm("Are you sure?");
@@ -252,6 +271,12 @@ function OneBook() {
     if (res) {
       deleteFragment({ id: book!.id, ext: ext });
     }
+  };
+
+  const handleAddNewFragment = () => {
+    setIsAddFragment(true);
+    fragmentRef.current!.accept = ".pdf, .epub, .txt, .fb2";
+    fragmentRef.current!.click();
   };
 
   return (
@@ -389,104 +414,114 @@ function OneBook() {
               className="hidden"
               multiple={false}
             />
-            <Menu as="div" className="relative inline-block text-left lg:mt-4">
-              {({ open }) => (
-                <>
-                  <div>
-                    <Menu.Button className="flex flex-row justify-between pl-3 text-white bg-black py-2 w-[14rem]">
-                      <p className="text-base">Download fragment</p>
-                      {open ? (
-                        <div>
-                          <RiArrowDropUpFill className="text-2xl" />
-                        </div>
-                      ) : (
-                        <RiArrowDropDownFill className="text-2xl" />
-                      )}
-                    </Menu.Button>
-                  </div>
-                  <Transition
-                    enter="transition ease-out duration-300"
-                    enterFrom="transform opacity-0 scale-y-95"
-                    enterTo="transform opacity-100 scale-y-100"
-                    leave="transition ease-in duration-75"
-                    leaveFrom="transform opacity-100 scale-y-100"
-                    leaveTo="transform opacity-0 scale-y-95"
-                  >
-                    <Menu.Items className="absolute left-0 min-w-[14rem] text-white origin-top-left bg-black shadow-lg">
-                      <div className="py-1 border-t border-[#e8c1ff]">
-                        <Menu.Item>
-                          {({ active }) =>
-                            book?.fragmentPaths ? (
-                              <div className="flex flex-col items-start">
-                                {book.fragmentPaths.map((item, key) => (
-                                  <button
-                                    className="flex flex-row justify-start w-full but-anim"
-                                    key={key}
-                                  >
-                                    {isLoggedIn ? (
-                                      <a
-                                        href={item}
-                                        className="w-full hover:text-[#ae2012]"
-                                        download={item}
-                                      >
-                                        {item.substring(
-                                          item.lastIndexOf("/") + 1
-                                        )}
-                                      </a>
-                                    ) : (
-                                      <>
-                                        <p
-                                          className="w-full"
-                                          onClick={handleShowAlert}
+            <div className="flex flex-row gap-4 lg:mt-4">
+              <Menu as="div" className="relative inline-block text-left">
+                {({ open }) => (
+                  <>
+                    <div>
+                      <Menu.Button className="flex flex-row justify-between pl-3 text-white bg-black py-2 w-[14rem]">
+                        <p className="text-base">Download fragment</p>
+                        {open ? (
+                          <div>
+                            <RiArrowDropUpFill className="text-2xl" />
+                          </div>
+                        ) : (
+                          <RiArrowDropDownFill className="text-2xl" />
+                        )}
+                      </Menu.Button>
+                    </div>
+                    <Transition
+                      enter="transition ease-out duration-300"
+                      enterFrom="transform opacity-0 scale-y-95"
+                      enterTo="transform opacity-100 scale-y-100"
+                      leave="transition ease-in duration-75"
+                      leaveFrom="transform opacity-100 scale-y-100"
+                      leaveTo="transform opacity-0 scale-y-95"
+                    >
+                      <Menu.Items className="absolute left-0 min-w-[14rem] text-white origin-top-left bg-black shadow-lg">
+                        <div className="py-1 border-t border-[#e8c1ff]">
+                          <Menu.Item>
+                            {({ active }) =>
+                              book?.fragmentPaths ? (
+                                <div className="flex flex-col items-start">
+                                  {book.fragmentPaths.map((item, key) => (
+                                    <button
+                                      className="flex flex-row justify-start w-full but-anim"
+                                      key={key}
+                                    >
+                                      {isLoggedIn ? (
+                                        <a
+                                          href={item}
+                                          className="w-full hover:text-[#ae2012]"
+                                          download={item}
                                         >
                                           {item.substring(
                                             item.lastIndexOf("/") + 1
                                           )}
-                                        </p>
-                                        {cookies.bc_role === ADMIN && (
-                                          <div className="flex">
-                                            <p
-                                              className="hover:text-yellow-400"
-                                              onClick={() =>
-                                                handleFragmentClick(
-                                                  item.substring(
-                                                    item.lastIndexOf("/") + 1
+                                        </a>
+                                      ) : (
+                                        <>
+                                          <p
+                                            className="w-full"
+                                            onClick={handleShowAlert}
+                                          >
+                                            {item.substring(
+                                              item.lastIndexOf("/") + 1
+                                            )}
+                                          </p>
+                                          {cookies.bc_role === ADMIN && (
+                                            <div className="flex">
+                                              <p
+                                                className="hover:text-yellow-400"
+                                                onClick={() =>
+                                                  handleFragmentClick(
+                                                    item.substring(
+                                                      item.lastIndexOf("/") + 1
+                                                    )
                                                   )
-                                                )
-                                              }
-                                            >
-                                              Update
-                                            </p>
-                                            <p
-                                              className="mx-2 hover:text-red-800"
-                                              onClick={() =>
-                                                handleFragmentDelete(
-                                                  item.substring(
-                                                    item.lastIndexOf("/") + 1
+                                                }
+                                              >
+                                                Update
+                                              </p>
+                                              <p
+                                                className="mx-2 hover:text-red-800"
+                                                onClick={() =>
+                                                  handleFragmentDelete(
+                                                    item.substring(
+                                                      item.lastIndexOf("/") + 1
+                                                    )
                                                   )
-                                                )
-                                              }
-                                            >
-                                              Delete
-                                            </p>
-                                          </div>
-                                        )}
-                                      </>
-                                    )}
-                                  </button>
-                                ))}
-                              </div>
-                            ) : (
-                              <p></p>
-                            )
-                          }
-                        </Menu.Item>
-                      </div>
-                    </Menu.Items>
-                  </Transition>
-                </>
+                                                }
+                                              >
+                                                Delete
+                                              </p>
+                                            </div>
+                                          )}
+                                        </>
+                                      )}
+                                    </button>
+                                  ))}
+                                </div>
+                              ) : (
+                                <p></p>
+                              )
+                            }
+                          </Menu.Item>
+                        </div>
+                      </Menu.Items>
+                    </Transition>
+                  </>
+                )}
+              </Menu>
+              {cookies.bc_role === ADMIN && (
+                <button
+                  className="mt-2 underline text-yellow-400"
+                  onClick={handleAddNewFragment}
+                >
+                  Add new fragment
+                </button>
               )}
-            </Menu>
+            </div>
           </div>
         </div>
         {/* Books */}

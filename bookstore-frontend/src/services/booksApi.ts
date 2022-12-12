@@ -145,5 +145,15 @@ export const booksApi = createApi({
         body: body.data,
       }),
     }),
+    addNewFragment: build.mutation<
+      IResponse<string>,
+      { id: string; data: FormData }
+    >({
+      query: (body) => ({
+        url: `${body.id}/add-fragment`,
+        method: "POST",
+        body: body.data,
+      }),
+    }),
   }),
 });

@@ -55,7 +55,7 @@ function Profile() {
     event.target.value = "";
 
     const formData = new FormData();
-    formData.append("image", fileObj);
+    formData.append("file", fileObj);
 
     updateImage(formData);
   };

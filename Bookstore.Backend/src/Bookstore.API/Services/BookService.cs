@@ -4,7 +4,6 @@ using AutoMapper;
 using Bookstore.API.DTOs;
 using Bookstore.API.Extensions;
 using Bookstore.API.Models.GetImage;
-using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Exceptions;
@@ -16,7 +15,6 @@ using LanguageExt.Common;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using static System.Net.Mime.MediaTypeNames;
 using Path = System.IO.Path;
 
 namespace Bookstore.API.Services
@@ -527,6 +525,42 @@ namespace Bookstore.API.Services
             await _bookRepository.DeleteFragmentAsync(book.Id, extension);
 
             return Unit.Default;
+        }
+
+        public async Task<Result<string>> AddFragment(IFormFile file, string bookId, string serverUrl)
+        {
+            var valid = ValidateFragment(file);
+
+            if (valid.IsFaulted)
+            {
+                return valid;
+            }
+
+            var book = await _bookRepository.FindByIdAsync(bookId);
+
+            if (book is null)
+            {
+                return new Result<string>(new BookNotFoundException());
+            }
+
+            var extension = Path.GetExtension(file.FileName);
+
+            if (book.FragmentPaths.Any(x => x.Extension == extension))
+            {
+                return new Result<string>(new InvalidFileException("File with such extension already exists"));
+            }
+
+            var uploadResult = await _uploadService.UploadFile(file, _bookSettings.UploadPath, bookId);
+
+            Domain.ValueObjects.Path fragmentPath = new(
+                uploadResult.UniqueName,
+                uploadResult.Extension,
+                "application/zip",
+                $"{serverUrl}/api/books/fragments/{uploadResult.UniqueName}/{uploadResult.Extension}");
+
+            await _bookRepository.AddFragmentAsync(book.Id, fragmentPath);
+
+            return uploadResult.UniqueName;
         }
 
         private string GetDateDifference(DateTime date)
