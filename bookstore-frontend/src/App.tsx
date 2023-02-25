@@ -11,6 +11,7 @@ import Login from "./pages/Login";
 import MainPage from "./pages/MainPage";
 import NotFound from "./pages/NotFound";
 import OneBook from "./pages/OneBook";
+import OneBookNew from "./pages/OneBookNew";
 import Profile from "./pages/Profile";
 import SignUp from "./pages/SignUp";
 
@@ -28,6 +29,10 @@ function App() {
 
       <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
         <Route path="/book/:id" element={<OneBook />} />
+      </Route>
+
+      <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
+        <Route path="/new-book/:id" element={<OneBookNew />} />
       </Route>
 
       <Route element={<ProtectedRout allowedRoles={[ADMIN]} />}>

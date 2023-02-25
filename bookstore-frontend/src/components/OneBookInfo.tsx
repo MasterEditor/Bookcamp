@@ -1,81 +1,60 @@
-import React, { useState, useRef, useEffect, ChangeEvent } from "react";
+import { Menu, Transition } from "@headlessui/react";
+import { Alert, Breadcrumb } from "flowbite-react";
+import React, { ChangeEvent, useEffect, useRef, useState } from "react";
+import { AiFillStar } from "react-icons/ai";
+import { BiBookHeart } from "react-icons/bi";
+import { RiArrowDropDownFill, RiArrowDropUpFill } from "react-icons/ri";
 import { createSearchParams, useNavigate, useParams } from "react-router-dom";
 import { HashLink } from "react-router-hash-link";
-import { BiBookHeart } from "react-icons/bi";
-import Header from "../components/Header";
-import { FaUserCircle } from "react-icons/fa";
-import Footer from "../components/Footer";
-import { Menu, Transition } from "@headlessui/react";
-import { RiArrowDropDownFill, RiArrowDropUpFill } from "react-icons/ri";
-import { AiFillStar } from "react-icons/ai";
-import { Alert, Breadcrumb } from "flowbite-react";
-import "../hover.scss";
-import SingleBook from "../components/SingleBook";
-import { booksApi } from "../services/booksApi";
-import { IBook } from "../models/IBook";
+import { ADMIN } from "../constants/roles";
 import { useAppSelector } from "../hooks/useAppSelector";
+import { IBook } from "../models/IBook";
+import { booksApi } from "../services/booksApi";
+import parse from "html-react-parser";
 import classNames from "classnames";
 import { authApi } from "../services/authApi";
 import { IComment } from "../models/IComment";
-import Comment from "../components/Comment";
-import parse from "html-react-parser";
-import { ADMIN } from "../constants/roles";
-import AdminHeader from "../components/AdminHeader";
 
-function OneBook() {
+function OneBookInfo() {
+  const rating: number[] = [1, 2, 3, 4, 5];
   const { id } = useParams();
-
+  const navigate = useNavigate();
   const fragmentRef = useRef<HTMLInputElement>(null);
+  const [book, setBook] = useState<IBook>();
   const [isCoverUpdate, setIsCoverUpdate] = useState(false);
   const [isAddFragment, setIsAddFragment] = useState(false);
-
-  const { favourites, imageUrl, name, role } = useAppSelector(
-    (state) => state.user.user
-  );
+  const [showAlert, setShowAlert] = useState(false);
+  const [isInFavourite, setIsInFavourite] = useState(false);
+  const [comments, setComments] = useState<IComment[]>([]);
+  const [userRate, setUserRate] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const [showAlert, setShowAlert] = useState(false);
-  const [userRate, setUserRate] = useState(0);
+  const { favourites, name, role } = useAppSelector((state) => state.user.user);
 
-  const [isInFavourite, setIsInFavourite] = useState(false);
-
-  const [comment, setComment] = useState("");
-  const [comments, setComments] = useState<IComment[]>([]);
-  const [validComment, setValidComment] = useState(false);
-  const [commentFilled, setCommentFilled] = useState(false);
-
+  const { data: bookData } = booksApi.useGetBookQuery(id!);
+  const { data: commentsData } = booksApi.useGetCommentsQuery(id!);
+  const { data: userRateData } = booksApi.useGetRatingQuery(id!);
   const [deleteBook, { isSuccess: bookDeleteSuccess }] =
     booksApi.useDeleteBookMutation();
+  //   const [getAuthorBooks, { data: authorBooksData }] =
+  //     booksApi.useLazyGetAuthorBooksQuery();
   const [addToFavourite] = authApi.useAddToFavouriteMutation();
   const [removeFromFavourite] = authApi.useRemoveFromFavouriteMutation();
-  const [addComment, { isSuccess: addCommentSuccess }] =
-    booksApi.useAddCommentMutation();
   const [addRating] = booksApi.useAddRatingMutation();
-  const { data: userRateData } = booksApi.useGetRatingQuery(id!);
-  const { data: userComment } = booksApi.useGetCommentQuery(id!);
-  const { data: commentsData } = booksApi.useGetCommentsQuery(id!);
-  const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
-    booksApi.useDeleteFragmentMutation();
   const [updateFragment, { isSuccess: updateFragmentSuccess }] =
     booksApi.useUpdateFragmentMutation();
   const [updateCover, { isSuccess: updateCoverSuccess }] =
     booksApi.useUpdateCoverMutation();
   const [addFragment, { isSuccess: addFragmentSuccess }] =
     booksApi.useAddNewFragmentMutation();
-
-  const [isCommentAdded, setIsCommentAdded] = useState(false);
-
-  useEffect(() => {
-    if (favourites?.find((x) => x === id) !== undefined) {
-      setIsInFavourite(true);
-    }
-  }, [favourites]);
+  const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
+    booksApi.useDeleteFragmentMutation();
 
   useEffect(() => {
-    if (name) {
-      setIsLoggedIn(true);
-    }
-  }, [name]);
+    setBook(bookData?.body!);
+
+    // getAuthorBooks({ author: bookData?.body.author!, id: id! });
+  }, [bookData]);
 
   useEffect(() => {
     setComments(commentsData?.body!);
@@ -86,8 +65,10 @@ function OneBook() {
   }, [userRateData]);
 
   useEffect(() => {
-    setIsCommentAdded(userComment?.body!);
-  }, [userComment]);
+    if (name) {
+      setIsLoggedIn(true);
+    }
+  }, [name]);
 
   useEffect(() => {
     if (bookDeleteSuccess) {
@@ -96,50 +77,41 @@ function OneBook() {
   }, [bookDeleteSuccess]);
 
   useEffect(() => {
-    if (addCommentSuccess) {
+    if (
+      updateFragmentSuccess ||
+      deleteFragmentSuccess ||
+      updateCoverSuccess ||
+      addFragmentSuccess
+    ) {
       window.location.reload();
     }
-  }, [addCommentSuccess]);
-
-  useEffect(() => {
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  }, [id, showAlert]);
-
-  const { data: bookData } = booksApi.useGetBookQuery(id!);
-
-  const [getAuthorBooks, { data: authorBooksData }] =
-    booksApi.useLazyGetAuthorBooksQuery();
-
-  const [authorBooks, setAuthorBooks] = useState<IBook[]>([]);
-
-  const [book, setBook] = useState<IBook>();
-
-  const rating: number[] = [1, 2, 3, 4, 5];
-
-  useEffect(() => {
-    setBook(bookData?.body!);
-
-    getAuthorBooks({ author: bookData?.body.author!, id: id! });
-  }, [bookData]);
-
-  useEffect(() => {
-    setAuthorBooks(authorBooksData?.body!);
-  }, [authorBooksData]);
-
-  const navigate = useNavigate();
-
-  const handleBookClick = (bookId: string) => {
-    navigate(`/book/${bookId}`);
-  };
+  }, [
+    updateFragmentSuccess,
+    deleteFragmentSuccess,
+    updateCoverSuccess,
+    addFragmentSuccess,
+  ]);
 
   const handleBack = (back: string) => {
     navigate({
       pathname: "/books",
       search: `?${createSearchParams({ genres: back })}`,
     });
+  };
+
+  const handleDeleteBook = () => {
+    const res = window.confirm("Are you sure?");
+
+    if (res) {
+      deleteBook(book?.id!);
+    }
+  };
+
+  const coverUpdateClick = () => {
+    setIsCoverUpdate(true);
+    setIsAddFragment(false);
+    fragmentRef.current!.accept = ".png, .jpg, .jpeg, .gif, .tiff";
+    fragmentRef.current!.click();
   };
 
   const handleFavourite = () => {
@@ -155,20 +127,6 @@ function OneBook() {
     }
   };
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-
-    if (comment.length < 10) {
-      setValidComment(false);
-      setCommentFilled(true);
-      return;
-    }
-
-    if (!isCommentAdded) {
-      addComment({ bookId: id!, review: comment });
-    }
-  };
-
   const handleRateClick = (rate: number) => {
     if (!favourites) {
       setShowAlert(true);
@@ -177,46 +135,6 @@ function OneBook() {
 
     addRating({ rate: rate, bookId: id! });
     window.location.reload();
-  };
-
-  const handleShowAlert = () => {
-    if (showAlert) {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } else {
-      setShowAlert(true);
-    }
-  };
-
-  const handleDeleteBook = () => {
-    const res = window.confirm("Are you sure?");
-
-    if (res) {
-      deleteBook(book?.id!);
-    }
-  };
-
-  const handleAuthorBooks = () => {
-    navigate({
-      pathname: "/books",
-      search: `?${createSearchParams({ keywords: book?.author! })}`,
-    });
-  };
-
-  const handleFragmentClick = (ext: string) => {
-    setIsCoverUpdate(false);
-    setIsAddFragment(false);
-    fragmentRef.current!.accept = ext;
-    fragmentRef.current!.click();
-  };
-
-  const coverUpdateClick = () => {
-    setIsCoverUpdate(true);
-    setIsAddFragment(false);
-    fragmentRef.current!.accept = ".png, .jpg, .jpeg, .gif, .tiff";
-    fragmentRef.current!.click();
   };
 
   const handleFragmentChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -241,21 +159,23 @@ function OneBook() {
     }
   };
 
-  useEffect(() => {
-    if (
-      updateFragmentSuccess ||
-      deleteFragmentSuccess ||
-      updateCoverSuccess ||
-      addFragmentSuccess
-    ) {
-      window.location.reload();
+  const handleShowAlert = () => {
+    if (showAlert) {
+      window.scrollTo({
+        top: 0,
+        behavior: "smooth",
+      });
+    } else {
+      setShowAlert(true);
     }
-  }, [
-    updateFragmentSuccess,
-    deleteFragmentSuccess,
-    updateCoverSuccess,
-    addFragmentSuccess,
-  ]);
+  };
+
+  const handleFragmentClick = (ext: string) => {
+    setIsCoverUpdate(false);
+    setIsAddFragment(false);
+    fragmentRef.current!.accept = ext;
+    fragmentRef.current!.click();
+  };
 
   const handleFragmentDelete = (ext: string) => {
     const res = window.confirm("Are you sure?");
@@ -273,7 +193,6 @@ function OneBook() {
 
   return (
     <>
-      {role === ADMIN ? <AdminHeader /> : <Header />}
       <div className="flex flex-row justify-between">
         <Breadcrumb className="mt-5 ml-5">
           <Breadcrumb.Item onClick={() => handleBack("")}>
@@ -293,7 +212,6 @@ function OneBook() {
           </p>
         )}
       </div>
-
       <div className="flex flex-col mb-10">
         <div className="flex flex-col lg:flex-row justify-start mt-16 mx-5 2xl:mx-16 border-b border-[#ced4da] pb-10">
           <div className="basis-2/4 flex flex-col items-center justify-center mb-10 lg:mb-0 mr-5 xl:mr-0">
@@ -361,7 +279,7 @@ function OneBook() {
               <span className="mx-1.5 h-1 w-1 rounded-full bg-gray-500 dark:bg-gray-400" />
               <HashLink
                 smooth
-                to="#reviews"
+                to="#comments"
                 className="text-sm font-medium text-gray-900 underline hover:no-underline dark:text-white"
               >
                 {comments?.length} comments
@@ -516,95 +434,9 @@ function OneBook() {
             </div>
           </div>
         </div>
-        {/* Books */}
-        <div className="flex flex-col mt-6 px-16 border-b border-[#ced4da] pb-10 bg-[#ededed]">
-          <p className="mt-5 mb-10 text-xl lg:text-3xl">From the publisher</p>
-          <div className="flex w-full h-full flex-row justify-center">
-            {authorBooks &&
-              authorBooks.map((item) => (
-                <div
-                  className="basis-1/6 bg-[#f3f3f3] m-5 cursor-pointer but-anim
-               hover:translate-y-[-0.5rem]"
-                  key={item.id}
-                  onClick={() => handleBookClick(item.id)}
-                >
-                  <SingleBook {...item} />
-                </div>
-              ))}
-          </div>
-          <div className="flex w-full justify-end">
-            <button
-              className="learn-more text-sm mt-7 text-left w-[10rem]"
-              onClick={handleAuthorBooks}
-            >
-              <span className="circle" aria-hidden="true">
-                <span className="icon arrow"></span>
-              </span>
-              <span className="button-text">See all</span>
-            </button>
-          </div>
-        </div>
-        {/* Comments */}
-        <div className="flex flex-col mt-6 mx-16" id="reviews">
-          <p className="mt-5 mb-10 text-xl lg:text-3xl">Comments</p>
-          <div className="flex flex-row justify-start">
-            {imageUrl ? (
-              <img
-                src={imageUrl}
-                className="hidden lg:block rounded-full h-12 w-12 mr-5"
-              />
-            ) : (
-              <FaUserCircle className="hidden lg:block text-[3rem] mr-5" />
-            )}
-            <form
-              className="flex flex-col w-[100%] xl:w-[60%]"
-              onSubmit={handleSubmit}
-            >
-              <textarea
-                className="rounded 2xl:w-[50rem] min-h-[5rem] h-[5rem] max-h-[8rem] overflow-auto"
-                placeholder="Your review"
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                minLength={10}
-                maxLength={256}
-              ></textarea>
-              {!validComment && commentFilled && (
-                <p className="mt-2 text-red-600 text-sm">
-                  Comment must be no shorter than 10 symbols and no longer than
-                  256 symbols
-                </p>
-              )}
-              <div className="flex justify-end mt-4 2xl:mr-8">
-                {favourites ? (
-                  <button
-                    type="submit"
-                    className="text-white bg-black px-5 py-2 rounded-lg but-anim hover:opacity-80"
-                  >
-                    <p>Add comment</p>
-                  </button>
-                ) : (
-                  <button
-                    className="text-white bg-black px-5 py-2 rounded-lg but-anim hover:opacity-80"
-                    onClick={handleShowAlert}
-                  >
-                    Add comment
-                  </button>
-                )}
-              </div>
-            </form>
-          </div>
-          <div className="mt-10">
-            {comments ? (
-              comments.map((item) => <Comment {...item} key={item.id} />)
-            ) : (
-              <p>No reviews added</p>
-            )}
-          </div>
-        </div>
       </div>
-      <Footer />
     </>
   );
 }
 
-export default OneBook;
+export default OneBookInfo;
