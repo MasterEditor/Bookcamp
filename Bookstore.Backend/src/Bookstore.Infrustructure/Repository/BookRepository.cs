@@ -8,12 +8,12 @@ namespace Bookstore.Infrustructure.Repository
 {
     public sealed class BookRepository : MongoRepository<Book>, IBookRepository
     {
-        private readonly IMongoCollection<Review> _reviewCollection;
+        private readonly IMongoCollection<Comment> _reviewCollection;
         private readonly IMongoCollection<Rating> _ratingCollection;
 
         public BookRepository(IMongoDbContext context) : base(context)
         {
-            _reviewCollection = _context.GetCollection<Review>(GetCollectionName(typeof(Review)));
+            _reviewCollection = _context.GetCollection<Comment>(GetCollectionName(typeof(Comment)));
             _ratingCollection = _context.GetCollection<Rating>(GetCollectionName(typeof(Rating)));
         }
 
@@ -22,25 +22,25 @@ namespace Bookstore.Infrustructure.Repository
             await _ratingCollection.InsertOneAsync(rating);
         }
 
-        public async Task AddReview(Review review)
+        public async Task AddComment(Comment comment)
         {
-            await _reviewCollection.InsertOneAsync(review);
+            await _reviewCollection.InsertOneAsync(comment);
         }
 
-        public async Task DeleteReviewAsync(string id)
+        public async Task DeleteCommentAsync(string id)
         {
             var objectId = new ObjectId(id);
 
             await _reviewCollection.DeleteOneAsync(x => x.Id == objectId);
         }
 
-        public async Task DeleteReviewsAndRatingsByBookId(string id)
+        public async Task DeleteCommentsAndRatingsByBookId(string id)
         {
             await _reviewCollection.DeleteManyAsync(x => x.BookId == id);
             await _ratingCollection.DeleteManyAsync(x => x.BookId == id);
         }
 
-        public async Task DeleteReviewsAndRatingsByUserId(string id)
+        public async Task DeleteCommentsAndRatingsByUserId(string id)
         {
             await _reviewCollection.DeleteManyAsync(x => x.User.UserId == id);
             await _ratingCollection.DeleteManyAsync(x => x.UserId == id);
@@ -63,7 +63,7 @@ namespace Bookstore.Infrustructure.Repository
             return _collection.CountDocuments(_ => true);
         }
 
-        public async Task<List<Review>> GetAllReviewsByBook(string bookId)
+        public async Task<List<Comment>> GetAllCommentsByBook(string bookId)
         {
             return await _reviewCollection.Find(x => x.BookId == bookId)
                 .SortByDescending(x => x.AddedAt)
@@ -88,16 +88,16 @@ namespace Bookstore.Infrustructure.Repository
                 .FirstOrDefaultAsync();
         }
 
-        public async Task<Review> GetReview(string userId, string bookId)
+        public async Task<Comment> GetComment(string userId, string bookId)
         {
             return await _reviewCollection.Find(x => x.User.UserId == userId && x.BookId == bookId)
                 .FirstOrDefaultAsync();
         }
 
-        public async Task UpdateReviewsByUserId(string id, string imageUrl)
+        public async Task UpdateCommentsByUserId(string id, string imageUrl)
         {
-            var filter = Builders<Review>.Filter.Eq(x => x.User.UserId, id);
-            var update = Builders<Review>.Update.Set(x => x.User.ImageUrl, imageUrl);
+            var filter = Builders<Comment>.Filter.Eq(x => x.User.UserId, id);
+            var update = Builders<Comment>.Update.Set(x => x.User.ImageUrl, imageUrl);
 
             await _reviewCollection.UpdateManyAsync(filter, update);
         }

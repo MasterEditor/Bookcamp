@@ -1,6 +1,6 @@
 ﻿namespace Bookstore.API.DTOs
 {
-    public sealed record ReviewDTO
+    public sealed record CommentDTO
     {
         public string Id { get; set; }
         public string Review { get; init; }

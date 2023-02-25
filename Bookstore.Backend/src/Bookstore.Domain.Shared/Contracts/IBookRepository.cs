@@ -10,19 +10,19 @@ namespace Bookstore.Domain.Shared.Contracts
         Task DeleteFragmentAsync(ObjectId id, string extention);
         Task AddFragmentAsync(ObjectId id, ValueObjects.Path fragment);
         Task UpdateCoverAsync(ObjectId id, ValueObjects.Path cover);
-        Task AddReview(Review review);
-        Task UpdateReviewsByUserId(string id, string imageUrl);
-        Task DeleteReviewAsync(string id);
+        Task AddComment(Comment comment);
+        Task UpdateCommentsByUserId(string id, string imageUrl);
+        Task DeleteCommentAsync(string id);
         Task AddRating(Rating rating);
         Task<float> GetRateByAllRates(string bookId);
         Task UpdateBookRate(string bookId, float rate);
         Task<Rating> GetRating(string userId, string bookId);
         Task UpdateRating(string userId, string bookId, int rate);
-        Task<Review> GetReview(string userId, string bookId);
-        Task<List<Review>> GetAllReviewsByBook(string bookId);
+        Task<Comment> GetComment(string userId, string bookId);
+        Task<List<Comment>> GetAllCommentsByBook(string bookId);
         Task<List<Book>> GetAllBooksByIds(List<string> bookIds);
         long GetAllDocumentsCount();
-        Task DeleteReviewsAndRatingsByUserId(string id);
-        Task DeleteReviewsAndRatingsByBookId(string id);
+        Task DeleteCommentsAndRatingsByUserId(string id);
+        Task DeleteCommentsAndRatingsByBookId(string id);
     }
 }

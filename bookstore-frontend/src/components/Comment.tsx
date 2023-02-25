@@ -1,15 +1,15 @@
 import React, { useEffect } from "react";
 import { useCookies } from "react-cookie";
 import { FaUserCircle } from "react-icons/fa";
-import { IReview } from "../models/IReview";
+import { IComment } from "../models/IComment";
 import { ImCross } from "react-icons/im";
 import { ADMIN } from "../constants/roles";
 import { booksApi } from "../services/booksApi";
 
-function Review(props: IReview) {
+function Comment(props: IComment) {
   const [cookies] = useCookies(["bc_role"]);
 
-  const [deleteReview, { isSuccess }] = booksApi.useDeleteReviewMutation();
+  const [deleteComment, { isSuccess }] = booksApi.useDeleteCommentMutation();
 
   useEffect(() => {
     if (isSuccess) {
@@ -21,7 +21,7 @@ function Review(props: IReview) {
     const res = window.confirm("Are you sure?");
 
     if (res) {
-      deleteReview(props.id!);
+      deleteComment(props.id!);
     }
   };
 
@@ -52,4 +52,4 @@ function Review(props: IReview) {
   );
 }
 
-export default Review;
+export default Comment;

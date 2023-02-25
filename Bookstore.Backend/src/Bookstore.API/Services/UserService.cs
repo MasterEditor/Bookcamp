@@ -9,6 +9,7 @@ using Bookstore.API.Models.SignupUser;
 using Bookstore.API.Models.UserData;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.UserAggregate;
+using Bookstore.Domain.Common.Contants;
 using Bookstore.Domain.Exceptions;
 using Bookstore.Domain.Models;
 using Bookstore.Domain.Shared.Contracts;
@@ -66,7 +67,7 @@ namespace Bookstore.API.Services
 
             await _userRepository.DeleteByIdAsync(user.Id.ToString());
 
-            await _bookRepository.DeleteReviewsAndRatingsByUserId(user.Id.ToString());
+            await _bookRepository.DeleteCommentsAndRatingsByUserId(user.Id.ToString());
 
             return Unit.Default;
         }
@@ -155,7 +156,8 @@ namespace Bookstore.API.Services
                 Name = user.Name,
                 Email = user.Email,
                 RegisterDate = user.RegistratedAt.ToString("MM/dd/yyyy hh:mm tt"),
-                Favourites = user.Favourites.ToArray()
+                Favourites = user.Favourites.ToArray(),
+                Role = RoleConstants.USER
             };
 
             if (user.Image is not null)
@@ -237,7 +239,7 @@ namespace Bookstore.API.Services
 
             await _userRepository.UpdateImageAsync(user.Id, path);
 
-            await _bookRepository.UpdateReviewsByUserId(id, path.Url);
+            await _bookRepository.UpdateCommentsByUserId(id, path.Url);
 
             return imageRes.UniqueName;
         }

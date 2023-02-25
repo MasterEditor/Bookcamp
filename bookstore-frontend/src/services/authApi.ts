@@ -99,5 +99,19 @@ export const authApi = createApi({
         method: "DELETE",
       }),
     }),
+    logoutUser: build.query<void, void>({
+      query: () => ({
+        url: `logout`,
+        method: "GET"
+      })
+    }),
+    checkUser: build.query<string, void>({
+      query: () => ({
+        url: `check`,
+        method: "GET"
+      }),
+      transformResponse: (response: IResponse<string>) => response.body,
+      keepUnusedDataFor: 0.0001
+    })
   }),
 });

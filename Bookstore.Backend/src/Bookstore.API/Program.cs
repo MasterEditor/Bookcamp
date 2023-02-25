@@ -175,11 +175,12 @@ app.UseCookiePolicy(new CookiePolicyOptions
     Secure = CookieSecurePolicy.Always
 });
 
+app.UseCors();
+
 app.UseStaticFiles();
 app.UseHttpsRedirection();
 app.UseSerilogRequestLogging();
 
-app.UseCors();
 app.UseAuthCookieMiddleware();
 
 app.UseAuthentication();

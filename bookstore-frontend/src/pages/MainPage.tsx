@@ -1,14 +1,14 @@
 import React from "react";
-import { useCookies } from "react-cookie";
 import { Navigate } from "react-router-dom";
 import Footer from "../components/Footer";
 import Header from "../components/Header";
 import Main from "../components/Main";
+import { useAppSelector } from "../hooks/useAppSelector";
 
 function MainPage() {
-  const [cookies] = useCookies(["bc_role"]);
+  const user = useAppSelector((x) => x.user.user);
 
-  return cookies.bc_role ? (
+  return user.role ? (
     <Navigate to="/books" />
   ) : (
     <div className="flex flex-col h-full justify-between">

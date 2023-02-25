@@ -6,6 +6,7 @@ using Bookstore.API.Models.LoginUser;
 using Bookstore.API.Models.SignupUser;
 using Bookstore.API.Models.UploadImage;
 using Bookstore.API.Services.Contracts;
+using Bookstore.Domain.Common.Contants;
 using Bookstore.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -30,6 +31,22 @@ namespace Bookstore.API.Controllers
             _userService = userService;
             _adminService = adminService;
             _adminSettings = adminOptions.Value;
+        }
+
+        [HttpGet("check")]
+        public async Task<IActionResult> CheckLogined()
+        {
+            string id = HttpContext.GetUserId();
+
+            var response = await _userService.GetUserData(id);
+
+            return response.Match<IActionResult>(success =>
+            {
+                return Ok(new Response<string>(success.Role));
+            }, ex =>
+            {
+                return Ok(new Response<string>(RoleConstants.ADMIN));
+            });
         }
 
         [AllowAnonymous]
@@ -59,33 +76,40 @@ namespace Bookstore.API.Controllers
                     SameSite = SameSiteMode.None,
                 };
 
-                CookieOptions roleCookieOptions = new()
-                {
-                    Path = "/",
-                    Domain = "localhost",
-                    Expires = DateTime.UtcNow.AddMinutes(30),
-                    Secure = true,
-                    HttpOnly = false,
-                    SameSite = SameSiteMode.None,
-                };
+                //CookieOptions roleCookieOptions = new()
+                //{
+                //    Path = "/",
+                //    Domain = "localhost",
+                //    Expires = DateTime.UtcNow.AddMinutes(30),
+                //    Secure = true,
+                //    HttpOnly = true,
+                //    SameSite = SameSiteMode.None,
+                //};
 
-                Response.Cookies.Append("bc_token", success, tokenCookieOptions);
+                Response.Cookies.Append(CookieConstants.BC_TOKEN, success, tokenCookieOptions);
 
                 if (request.Email == _adminSettings.Login)
                 {
-                    Response.Cookies.Append("bc_role", "Admin", roleCookieOptions);
-                    return Ok(new Response<string>("Admin"));
+                    //Response.Cookies.Append(CookieConstants.BC_ROLE, RoleConstants.ADMIN, roleCookieOptions);
+                    return Ok(new Response<string>(RoleConstants.ADMIN));
                 }
                 else
                 {
-                    Response.Cookies.Append("bc_role", "User", roleCookieOptions);
-                    return Ok(new Response<string>("User"));
+                    //Response.Cookies.Append(CookieConstants.BC_ROLE, RoleConstants.USER, roleCookieOptions);
+                    return Ok(new Response<string>(RoleConstants.USER));
                 }
-
             }, ex =>
             {
                 return BadRequest(new Response<string>(ex.Message));
             });
+        }
+
+        [HttpGet("logout")]
+        public IActionResult LogoutUser()
+        {
+            Response.Cookies.Delete(CookieConstants.BC_TOKEN);
+            //Response.Cookies.Delete(CookieConstants.BC_ROLE);
+            return Ok();
         }
 
         [HttpPut("change-name")]

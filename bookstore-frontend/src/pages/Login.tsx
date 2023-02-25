@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import FormInput from "../components/FormInput";
 import { USER } from "../constants/roles";
+import { useActions } from "../hooks/useActions";
 import { useInput } from "../hooks/useInput";
 import { REQUIRED } from "../hooks/useValidation";
 import { ILogin } from "../models/ILogin";
@@ -11,6 +12,8 @@ import { authApi } from "../services/authApi";
 function Login() {
   const [loginUser, { isLoading, data, isSuccess, error, isError }] =
     authApi.useLoginUserMutation();
+
+  const { setRole } = useActions();
 
   const navigate = useNavigate();
 
@@ -21,6 +24,8 @@ function Login() {
   useEffect(() => {
     if (isSuccess) {
       const role = data!.body;
+
+      setRole(data!.body);
 
       if (role === USER) {
         navigate("/books");

@@ -1,7 +1,7 @@
 ﻿using Bookstore.API.Extensions;
 using Bookstore.API.Models;
 using Bookstore.API.Models.AddBook;
-using Bookstore.API.Models.AddReview;
+using Bookstore.API.Models.AddComment;
 using Bookstore.API.Models.GetBooks;
 using Bookstore.API.Models.Rate;
 using Bookstore.API.Models.UploadImage;
@@ -92,35 +92,35 @@ namespace Bookstore.API.Controllers
             return result.ToOk();
         }
 
-        [HttpPost("review")]
+        [HttpPost("comment")]
         [Authorize(Policy = "User")]
-        public async Task<IActionResult> AddReview([FromBody] AddReviewRequest request)
+        public async Task<IActionResult> AddComment([FromBody] AddCommentRequest request)
         {
             string id = HttpContext.GetUserId();
 
-            var response = await _booksService.AddReview(
-                request.Review,
+            var response = await _booksService.AddComment(
+                request.Comment,
                 request.BookId,
                 id);
 
             return response.ToOk();
         }
 
-        [HttpGet("{bookId}/reviews")]
-        public async Task<IActionResult> GetReviews([FromRoute] string bookId)
+        [HttpGet("{bookId}/comments")]
+        public async Task<IActionResult> GetComments([FromRoute] string bookId)
         {
-            var response = await _booksService.GetReviews(bookId);
+            var response = await _booksService.GetComments(bookId);
 
             return response.ToOk();
         }
 
-        [HttpGet("{bookId}/user-review")]
+        [HttpGet("{bookId}/user-comment")]
         [Authorize(Policy = "User")]
-        public async Task<IActionResult> GetReview([FromRoute] string bookId)
+        public async Task<IActionResult> GetComment([FromRoute] string bookId)
         {
             var userId = HttpContext.GetUserId();
 
-            var response = await _booksService.IsUserAddedReview(bookId, userId);
+            var response = await _booksService.IsUserAddedComment(bookId, userId);
 
             return response.ToOk();
         }
@@ -206,11 +206,11 @@ namespace Bookstore.API.Controllers
             });
         }
 
-        [HttpDelete("review/{id}")]
+        [HttpDelete("comment/{id}")]
         [Authorize(Policy = "Admin")]
-        public async Task<IActionResult> DeleteReview([FromRoute] string id)
+        public async Task<IActionResult> DeleteComment([FromRoute] string id)
         {
-            var response = await _booksService.DeleteReview(id);
+            var response = await _booksService.DeleteComment(id);
 
             return response.ToOk();
         }

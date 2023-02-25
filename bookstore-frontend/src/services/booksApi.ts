@@ -2,7 +2,7 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { IBook } from "../models/IBook";
 import { IGetBooksReq } from "../models/IGetBooksReq";
 import { IResponse } from "../models/IResponse";
-import { IReview } from "../models/IReview";
+import { IComment } from "../models/IComment";
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT as string;
 
@@ -49,22 +49,22 @@ export const booksApi = createApi({
         method: "GET",
       }),
     }),
-    getReviews: build.query<IResponse<IReview[]>, string>({
+    getComments: build.query<IResponse<IComment[]>, string>({
       query: (bookId) => ({
-        url: `${bookId}/reviews`,
+        url: `${bookId}/comments`,
         method: "GET",
       }),
     }),
-    addReview: build.mutation<void, { review: string; bookId: string }>({
+    addComment: build.mutation<void, { review: string; bookId: string }>({
       query: (body) => ({
-        url: `review`,
+        url: `comment`,
         method: "POST",
         body,
       }),
     }),
-    getReview: build.query<IResponse<boolean>, string>({
+    getComment: build.query<IResponse<boolean>, string>({
       query: (bookId) => ({
-        url: `${bookId}/user-review`,
+        url: `${bookId}/user-comment`,
         method: "GET",
       }),
     }),
@@ -107,9 +107,9 @@ export const booksApi = createApi({
         body,
       }),
     }),
-    deleteReview: build.mutation<void, string>({
+    deleteComment: build.mutation<void, string>({
       query: (id) => ({
-        url: `review/${id}`,
+        url: `comment/${id}`,
         method: "DELETE",
       }),
     }),

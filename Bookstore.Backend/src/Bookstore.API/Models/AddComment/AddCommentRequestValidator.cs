@@ -1,12 +1,12 @@
 ﻿using FluentValidation;
 
-namespace Bookstore.API.Models.AddReview
+namespace Bookstore.API.Models.AddComment
 {
-    public class AddReviewRequestValidator : AbstractValidator<AddReviewRequest>
+    public class AddCommentRequestValidator : AbstractValidator<AddCommentRequest>
     {
-        public AddReviewRequestValidator()
+        public AddCommentRequestValidator()
         {
-            RuleFor(x => x.Review)
+            RuleFor(x => x.Comment)
                 .MinimumLength(10)
                 .MaximumLength(256)
                 .NotEmpty(); 

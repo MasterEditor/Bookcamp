@@ -1,4 +1,6 @@
-﻿namespace Bookstore.API.Middlewares
+﻿using Bookstore.Domain.Common.Contants;
+
+namespace Bookstore.API.Middlewares
 {
     public class AuthCookieMiddleware
     {
@@ -11,11 +13,9 @@
 
         public async Task InvokeAsync(HttpContext context)
         {
-            var token = context.Request.Cookies["bc_token"];
-            var role = context.Request.Cookies["bc_role"];
+            var token = context.Request.Cookies[CookieConstants.BC_TOKEN];
 
-            if(!string.IsNullOrEmpty(token) 
-                && !string.IsNullOrEmpty(role))
+            if(!string.IsNullOrEmpty(token))
             {
                 context.Request.Headers.Add("Authorization", $"Bearer {token}");
             }

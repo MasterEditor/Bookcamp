@@ -1,16 +1,15 @@
 import React from "react";
-import { useCookies } from "react-cookie";
-import { Link } from "react-router-dom";
-import { useAppSelector } from "../hooks/useAppSelector";
+import { Link, useNavigate } from "react-router-dom";
 import logo from "../pics/logo.svg";
+import { authApi } from "../services/authApi";
 
 function AdminHeader() {
-  const user = useAppSelector((state) => state.user.user);
-
-  const [, , removeCookies] = useCookies(["bc_role"]);
+  const [logoutUserQuery] = authApi.useLazyLogoutUserQuery();
+  const navigate = useNavigate();
 
   const signoutHandler = () => {
-    removeCookies("bc_role", { path: "/" });
+    logoutUserQuery();
+    navigate("/login");
     // window.location.reload();
   };
 

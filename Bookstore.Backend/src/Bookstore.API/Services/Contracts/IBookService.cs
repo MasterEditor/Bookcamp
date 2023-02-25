@@ -22,18 +22,18 @@ namespace Bookstore.API.Services.Contracts
             IEnumerable<IFormFile> fragments,
             IFormFile cover,
             string serverUrl);
-        Task<Result<Unit>> AddReview(
-            string review,
+        Task<Result<Unit>> AddComment(
+            string comment,
             string bookId,
             string userId);
-        Task<Result<Arr<ReviewDTO>>> GetReviews(string bookId);
+        Task<Result<Arr<CommentDTO>>> GetComments(string bookId);
         Task<Result<Unit>> AddRating(string userId, string bookId, int rate);
         Task<Result<int>> GetRating(string userId, string bookId);
         Task<Result<Arr<BookDTO>>> GetUserFavourites(string userId);
         Task<Result<Arr<BookDTO>>> GetNewBooks(int number);
         Task<Result<Arr<BookDTO>>> GetTopRateBooks(int number);
-        Task<Result<Unit>> DeleteReview(string id);
-        Task<Result<bool>> IsUserAddedReview(string bookId, string userId);
+        Task<Result<Unit>> DeleteComment(string id);
+        Task<Result<bool>> IsUserAddedComment(string bookId, string userId);
         Result<long> GetPages(int pageSize);
         Task<Result<string>> UpdateCover(IFormFile file, string bookId, string serverUrl);
         Task<Result<string>> UpdateFragment(IFormFile file, string bookId, string serverUrl);

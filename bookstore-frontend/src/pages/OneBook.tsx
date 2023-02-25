@@ -21,10 +21,9 @@ import { IBook } from "../models/IBook";
 import { useAppSelector } from "../hooks/useAppSelector";
 import classNames from "classnames";
 import { authApi } from "../services/authApi";
-import { IReview } from "../models/IReview";
-import Review from "../components/Review";
+import { IComment } from "../models/IComment";
+import Comment from "../components/Comment";
 import parse from "html-react-parser";
-import { useCookies } from "react-cookie";
 import { ADMIN } from "../constants/roles";
 import AdminHeader from "../components/AdminHeader";
 
@@ -35,12 +34,10 @@ function OneBook() {
   const [isCoverUpdate, setIsCoverUpdate] = useState(false);
   const [isAddFragment, setIsAddFragment] = useState(false);
 
-  const { favourites, imageUrl, name } = useAppSelector(
+  const { favourites, imageUrl, name, role } = useAppSelector(
     (state) => state.user.user
   );
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const [cookies] = useCookies(["bc_role"]);
 
   const [showAlert, setShowAlert] = useState(false);
   const [userRate, setUserRate] = useState(0);
@@ -48,7 +45,7 @@ function OneBook() {
   const [isInFavourite, setIsInFavourite] = useState(false);
 
   const [review, setReview] = useState("");
-  const [reviews, setReviews] = useState<IReview[]>([]);
+  const [reviews, setReviews] = useState<IComment[]>([]);
   const [validReview, setValidReview] = useState(false);
   const [reviewFilled, setReviewFilled] = useState(false);
 
@@ -57,11 +54,11 @@ function OneBook() {
   const [addToFavourite] = authApi.useAddToFavouriteMutation();
   const [removeFromFavourite] = authApi.useRemoveFromFavouriteMutation();
   const [addReview, { isSuccess: addReviewSuccess }] =
-    booksApi.useAddReviewMutation();
+    booksApi.useAddCommentMutation();
   const [addRating] = booksApi.useAddRatingMutation();
   const { data: userRateData } = booksApi.useGetRatingQuery(id!);
-  const { data: userReview } = booksApi.useGetReviewQuery(id!);
-  const { data: reviewsData } = booksApi.useGetReviewsQuery(id!);
+  const { data: userReview } = booksApi.useGetCommentQuery(id!);
+  const { data: reviewsData } = booksApi.useGetCommentsQuery(id!);
   const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
     booksApi.useDeleteFragmentMutation();
   const [updateFragment, { isSuccess: updateFragmentSuccess }] =
@@ -281,7 +278,7 @@ function OneBook() {
 
   return (
     <>
-      {cookies.bc_role === ADMIN ? <AdminHeader /> : <Header />}
+      {role === ADMIN ? <AdminHeader /> : <Header />}
       <div className="flex flex-row justify-between">
         <Breadcrumb className="mt-5 ml-5">
           <Breadcrumb.Item onClick={() => handleBack("")}>
@@ -292,7 +289,7 @@ function OneBook() {
           </Breadcrumb.Item>
           <Breadcrumb.Item>{book?.name}</Breadcrumb.Item>
         </Breadcrumb>
-        {cookies.bc_role === ADMIN && (
+        {role === ADMIN && (
           <p
             className="underline text-red-800 cursor-pointer mt-5 mr-5 hover:translate-y-[-3px] but-anim"
             onClick={handleDeleteBook}
@@ -309,7 +306,7 @@ function OneBook() {
               src={book?.cover && book?.cover}
               className="w-[25rem] h-[35rem] mt-3"
             />
-            {cookies.bc_role === ADMIN && (
+            {role === ADMIN && (
               <button
                 className="mt-2 underline text-yellow-400"
                 onClick={coverUpdateClick}
@@ -469,7 +466,7 @@ function OneBook() {
                                               item.lastIndexOf("/") + 1
                                             )}
                                           </p>
-                                          {cookies.bc_role === ADMIN && (
+                                          {role === ADMIN && (
                                             <div className="flex">
                                               <p
                                                 className="hover:text-yellow-400"
@@ -513,7 +510,7 @@ function OneBook() {
                   </>
                 )}
               </Menu>
-              {cookies.bc_role === ADMIN && (
+              {role === ADMIN && (
                 <button
                   className="mt-2 underline text-yellow-400"
                   onClick={handleAddNewFragment}
@@ -569,7 +566,7 @@ function OneBook() {
               onSubmit={handleSubmit}
             >
               <textarea
-                className="rounded 2xl:w-[50rem] h-[5rem] overflow-auto"
+                className="rounded 2xl:w-[50rem] min-h-[5rem] h-[5rem] max-h-[8rem] overflow-auto"
                 placeholder="Your review"
                 value={review}
                 onChange={(e) => setReview(e.target.value)}
@@ -603,7 +600,7 @@ function OneBook() {
           </div>
           <div className="mt-10">
             {reviews ? (
-              reviews.map((item) => <Review {...item} key={item.id} />)
+              reviews.map((item) => <Comment {...item} key={item.id} />)
             ) : (
               <p>No reviews added</p>
             )}

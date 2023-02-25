@@ -8,10 +8,12 @@ import { authApi } from "../services/authApi";
 import { useActions } from "../hooks/useActions";
 import { Menu, Transition } from "@headlessui/react";
 import classNames from "classnames";
-import { useCookies } from "react-cookie";
 
 function Header() {
   const { data, isLoading, isSuccess } = authApi.useMeQuery();
+
+  const [logoutUserQuery, { isSuccess: isLogoutSuccess }] =
+    authApi.useLazyLogoutUserQuery();
 
   const [scrollLimit, setScrollLimit] = useState(false);
 
@@ -26,9 +28,13 @@ function Header() {
     }
   }, [isLoading]);
 
-  const [search, setSearch] = useState("");
+  useEffect(() => {
+    if (isLogoutSuccess) {
+      window.location.reload();
+    }
+  }, [isLogoutSuccess]);
 
-  const [, , removeCookies] = useCookies(["bc_role"]);
+  const [search, setSearch] = useState("");
 
   const user = useAppSelector((state) => state.user.user);
 
@@ -45,9 +51,8 @@ function Header() {
 
   const logout = () => {
     logoutUser();
-    removeCookies("bc_role", { path: "/" });
+    logoutUserQuery();
     setLogouted(true);
-    window.location.reload();
   };
 
   const handleScroll = (event: any) => {

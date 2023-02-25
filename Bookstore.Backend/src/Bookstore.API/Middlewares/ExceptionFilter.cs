@@ -19,7 +19,8 @@ namespace Bookstore.API.Middlewares
 
             context.Result = new ContentResult
             {
-                Content = context.Exception.ToString()
+                Content = context.Exception.ToString(),
+                StatusCode = 400
             };
         }
     }

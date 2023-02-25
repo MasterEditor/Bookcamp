@@ -1,7 +1,7 @@
 import React from "react";
 import { Route, Routes } from "react-router-dom";
 import ProtectedRout from "./components/ProtectedRout";
-import { ADMIN, USER } from "./constants/roles";
+import { ADMIN, UNKNOWN, USER } from "./constants/roles";
 import AddBook from "./pages/Admin/AddBook";
 import AdminBooks from "./pages/Admin/AdminBooks";
 import AdminUsers from "./pages/Admin/AdminUsers";
@@ -21,10 +21,13 @@ function App() {
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<SignUp />} />
       <Route path="/books" element={<Books />} />
-      <Route path="/book/:id" element={<OneBook />} />
 
       <Route element={<ProtectedRout allowedRoles={[USER]} />}>
         <Route path="/profile" element={<Profile />} />
+      </Route>
+
+      <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
+        <Route path="/book/:id" element={<OneBook />} />
       </Route>
 
       <Route element={<ProtectedRout allowedRoles={[ADMIN]} />}>

@@ -11,6 +11,7 @@ export interface IUser {
   imageUrl?: string;
   gender?: number;
   registerDate?: string;
+  role?: string;
   favourites?: string[];
 }
 
@@ -24,7 +25,9 @@ export const userSlice = createSlice({
   reducers: {
     updateUser(state, action: PayloadAction<IUser>) {
       state.user = action.payload;
-      localStorage.setItem("user_name", action.payload.name!);
+    },
+    setRole(state, action: PayloadAction<string>) {
+      state.user.role = action.payload;
     },
     storeImage(state, action: PayloadAction<string>) {
       state.user.imageUrl = action.payload;
@@ -33,7 +36,6 @@ export const userSlice = createSlice({
       state.user.name = action.payload;
     },
     logoutUser(state) {
-      localStorage.clear();
       state = initialState;
     },
   },

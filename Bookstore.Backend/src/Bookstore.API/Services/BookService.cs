@@ -147,16 +147,16 @@ namespace Bookstore.API.Services
             return Unit.Default;
         }
 
-        public async Task<Result<Unit>> AddReview(
-            string review,
+        public async Task<Result<Unit>> AddComment(
+            string comment,
             string bookId,
             string userId)
         {
-            var ex = await _bookRepository.GetReview(userId, bookId);
+            var ex = await _bookRepository.GetComment(userId, bookId);
 
             if (ex is not null)
             {
-                return new Result<Unit>(new ReviewAlreadyExistsException());
+                return new Result<Unit>(new CommentAlreadyExistsException());
             }
 
             var user = await _userRepository.FindByIdAsync(userId);
@@ -171,9 +171,9 @@ namespace Bookstore.API.Services
                 user.Name,
                 user.Image is not null ? user.Image.Url : "");
 
-            Review newReview = new(review, bookId, userReview);
+            Comment newReview = new(comment, bookId, userReview);
 
-            await _bookRepository.AddReview(newReview);
+            await _bookRepository.AddComment(newReview);
 
             return Unit.Default;
         }
@@ -182,14 +182,14 @@ namespace Bookstore.API.Services
         {
             await _bookRepository.DeleteByIdAsync(id);
 
-            await _bookRepository.DeleteReviewsAndRatingsByBookId(id);
+            await _bookRepository.DeleteCommentsAndRatingsByBookId(id);
 
             return Unit.Default;
         }
 
-        public async Task<Result<Unit>> DeleteReview(string id)
+        public async Task<Result<Unit>> DeleteComment(string id)
         {
-            await _bookRepository.DeleteReviewAsync(id);
+            await _bookRepository.DeleteCommentAsync(id);
 
             return Unit.Default;
         }
@@ -385,17 +385,17 @@ namespace Bookstore.API.Services
             return rating.Value;
         }
 
-        public async Task<Result<Arr<ReviewDTO>>> GetReviews(string bookId)
+        public async Task<Result<Arr<CommentDTO>>> GetComments(string bookId)
         {
-            var reviews = await _bookRepository.GetAllReviewsByBook(bookId);
+            var reviews = await _bookRepository.GetAllCommentsByBook(bookId);
 
             if (reviews is null
                 || reviews.Count == 0)
             {
-                return new Result<Arr<ReviewDTO>>(new Arr<ReviewDTO>());
+                return new Result<Arr<CommentDTO>>(new Arr<CommentDTO>());
             }
 
-            return reviews.Select(x => new ReviewDTO()
+            return reviews.Select(x => new CommentDTO()
             {
                 Id = x.Id.ToString(),
                 ImageUrl = x.User.ImageUrl,
@@ -443,9 +443,9 @@ namespace Bookstore.API.Services
             }).ToArr();
         }
 
-        public async Task<Result<bool>> IsUserAddedReview(string bookId, string userId)
+        public async Task<Result<bool>> IsUserAddedComment(string bookId, string userId)
         {
-            var review = await _bookRepository.GetReview(userId, bookId);
+            var review = await _bookRepository.GetComment(userId, bookId);
 
             if (review is null)
             {
