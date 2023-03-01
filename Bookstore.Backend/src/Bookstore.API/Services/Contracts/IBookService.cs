@@ -26,7 +26,7 @@ namespace Bookstore.API.Services.Contracts
             string comment,
             string bookId,
             string userId);
-        Task<Result<Arr<CommentDTO>>> GetComments(string bookId);
+        Task<Result<Arr<CommentDTO>>> GetComments(string bookId, int? amount);
         Task<Result<Unit>> AddRating(string userId, string bookId, int rate);
         Task<Result<int>> GetRating(string userId, string bookId);
         Task<Result<Arr<BookDTO>>> GetUserFavourites(string userId);

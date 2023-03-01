@@ -1,6 +1,6 @@
 export interface IComment {
   id: string;
-  review: string;
+  comment: string;
   userName: string;
   imageUrl: string;
   addedTime: string;

@@ -27,12 +27,12 @@ function App() {
         <Route path="/profile" element={<Profile />} />
       </Route>
 
-      <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
+      {/* <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
         <Route path="/book/:id" element={<OneBook />} />
-      </Route>
+      </Route> */}
 
       <Route element={<ProtectedRout allowedRoles={[USER, ADMIN, UNKNOWN]} />}>
-        <Route path="/new-book/:id" element={<OneBookNew />} />
+        <Route path="/book/:id" element={<OneBookNew />} />
       </Route>
 
       <Route element={<ProtectedRout allowedRoles={[ADMIN]} />}>

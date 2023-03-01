@@ -63,10 +63,11 @@ namespace Bookstore.Infrustructure.Repository
             return _collection.CountDocuments(_ => true);
         }
 
-        public async Task<List<Comment>> GetAllCommentsByBook(string bookId)
+        public async Task<List<Comment>> GetAllCommentsByBook(string bookId, int? amount)
         {
             return await _reviewCollection.Find(x => x.BookId == bookId)
                 .SortByDescending(x => x.AddedAt)
+                .Limit(amount)
                 .ToListAsync();
         }
 

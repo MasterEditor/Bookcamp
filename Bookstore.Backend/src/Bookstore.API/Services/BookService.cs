@@ -385,21 +385,21 @@ namespace Bookstore.API.Services
             return rating.Value;
         }
 
-        public async Task<Result<Arr<CommentDTO>>> GetComments(string bookId)
+        public async Task<Result<Arr<CommentDTO>>> GetComments(string bookId, int? amount)
         {
-            var reviews = await _bookRepository.GetAllCommentsByBook(bookId);
+            var comments = await _bookRepository.GetAllCommentsByBook(bookId, amount);
 
-            if (reviews is null
-                || reviews.Count == 0)
+            if (comments is null
+                || comments.Count == 0)
             {
                 return new Result<Arr<CommentDTO>>(new Arr<CommentDTO>());
             }
 
-            return reviews.Select(x => new CommentDTO()
+            return comments.Select(x => new CommentDTO()
             {
                 Id = x.Id.ToString(),
                 ImageUrl = x.User.ImageUrl,
-                Review = x.Text,
+                Comment = x.Text,
                 UserName = x.User.UserName,
                 AddedTime = GetDateDifference(x.AddedAt)
             }).ToArr();

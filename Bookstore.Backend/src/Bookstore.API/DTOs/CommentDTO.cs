@@ -3,7 +3,7 @@
     public sealed record CommentDTO
     {
         public string Id { get; set; }
-        public string Review { get; init; }
+        public string Comment { get; init; }
         public string UserName { get; init; }
         public string ImageUrl { get; init; }
         public string AddedTime { get; init; }

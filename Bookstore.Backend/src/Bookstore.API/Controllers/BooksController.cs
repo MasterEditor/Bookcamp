@@ -107,9 +107,9 @@ namespace Bookstore.API.Controllers
         }
 
         [HttpGet("{bookId}/comments")]
-        public async Task<IActionResult> GetComments([FromRoute] string bookId)
+        public async Task<IActionResult> GetComments([FromRoute] string bookId, [FromQuery] int? amount)
         {
-            var response = await _booksService.GetComments(bookId);
+            var response = await _booksService.GetComments(bookId, amount);
 
             return response.ToOk();
         }

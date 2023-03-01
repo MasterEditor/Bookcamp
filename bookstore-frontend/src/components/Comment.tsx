@@ -38,7 +38,7 @@ function Comment(props: IComment) {
           <span className="font-bold mx-2">-</span>
           <span className="font-bold">{props.addedTime}</span>
         </div>
-        <p className="text-sm max-w-[50rem] break-words">{props.review}</p>
+        <p className="text-sm max-w-[50rem] break-words">{props.comment}</p>
       </div>
       {cookies.bc_role === ADMIN && (
         <div className="flex items-center">

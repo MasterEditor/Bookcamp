@@ -49,13 +49,13 @@ export const booksApi = createApi({
         method: "GET",
       }),
     }),
-    getComments: build.query<IResponse<IComment[]>, string>({
-      query: (bookId) => ({
-        url: `${bookId}/comments`,
+    getComments: build.query<IResponse<IComment[]>, {bookId: string; amount?: number}>({
+      query: (body) => ({
+        url: `${body.bookId}/comments?amount=${body.amount ?? ""}`,
         method: "GET",
       }),
     }),
-    addComment: build.mutation<void, { review: string; bookId: string }>({
+    addComment: build.mutation<void, { comment: string; bookId: string }>({
       query: (body) => ({
         url: `comment`,
         method: "POST",

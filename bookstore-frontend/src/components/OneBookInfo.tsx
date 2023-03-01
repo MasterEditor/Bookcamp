@@ -15,15 +15,24 @@ import classNames from "classnames";
 import { authApi } from "../services/authApi";
 import { IComment } from "../models/IComment";
 
-function OneBookInfo() {
+interface OneBookInfoProps {
+  id: string;
+  book: IBook;
+  handleShowAlert: () => void;
+  showAlert: boolean;
+}
+
+function OneBookInfo({
+  id,
+  book,
+  handleShowAlert,
+  showAlert,
+}: OneBookInfoProps) {
   const rating: number[] = [1, 2, 3, 4, 5];
-  const { id } = useParams();
   const navigate = useNavigate();
   const fragmentRef = useRef<HTMLInputElement>(null);
-  const [book, setBook] = useState<IBook>();
   const [isCoverUpdate, setIsCoverUpdate] = useState(false);
   const [isAddFragment, setIsAddFragment] = useState(false);
-  const [showAlert, setShowAlert] = useState(false);
   const [isInFavourite, setIsInFavourite] = useState(false);
   const [comments, setComments] = useState<IComment[]>([]);
   const [userRate, setUserRate] = useState(0);
@@ -31,13 +40,10 @@ function OneBookInfo() {
 
   const { favourites, name, role } = useAppSelector((state) => state.user.user);
 
-  const { data: bookData } = booksApi.useGetBookQuery(id!);
-  const { data: commentsData } = booksApi.useGetCommentsQuery(id!);
+  const { data: commentsData } = booksApi.useGetCommentsQuery({ bookId: id! });
   const { data: userRateData } = booksApi.useGetRatingQuery(id!);
   const [deleteBook, { isSuccess: bookDeleteSuccess }] =
     booksApi.useDeleteBookMutation();
-  //   const [getAuthorBooks, { data: authorBooksData }] =
-  //     booksApi.useLazyGetAuthorBooksQuery();
   const [addToFavourite] = authApi.useAddToFavouriteMutation();
   const [removeFromFavourite] = authApi.useRemoveFromFavouriteMutation();
   const [addRating] = booksApi.useAddRatingMutation();
@@ -49,12 +55,6 @@ function OneBookInfo() {
     booksApi.useAddNewFragmentMutation();
   const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
     booksApi.useDeleteFragmentMutation();
-
-  useEffect(() => {
-    setBook(bookData?.body!);
-
-    // getAuthorBooks({ author: bookData?.body.author!, id: id! });
-  }, [bookData]);
 
   useEffect(() => {
     setComments(commentsData?.body!);
@@ -123,13 +123,13 @@ function OneBookInfo() {
       }
       setIsInFavourite(!isInFavourite);
     } else {
-      setShowAlert(true);
+      handleShowAlert();
     }
   };
 
   const handleRateClick = (rate: number) => {
     if (!favourites) {
-      setShowAlert(true);
+      handleShowAlert();
       return;
     }
 
@@ -156,17 +156,6 @@ function OneBookInfo() {
       } else {
         updateFragment({ id: book!.id, data: formData });
       }
-    }
-  };
-
-  const handleShowAlert = () => {
-    if (showAlert) {
-      window.scrollTo({
-        top: 0,
-        behavior: "smooth",
-      });
-    } else {
-      setShowAlert(true);
     }
   };
 
