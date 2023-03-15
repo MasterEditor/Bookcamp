@@ -13,9 +13,7 @@ import { booksApi } from "../services/booksApi";
 
 function OneBookNew() {
   const { id } = useParams();
-  const { favourites, imageUrl, name, role } = useAppSelector(
-    (state) => state.user.user
-  );
+  const { role } = useAppSelector((state) => state.user.user);
   const [book, setBook] = useState<IBook>();
   const [showAlert, setShowAlert] = useState(false);
   const { data: bookData } = booksApi.useGetBookQuery(id!);

@@ -3,6 +3,7 @@ import { IBook } from "../models/IBook";
 import { IGetBooksReq } from "../models/IGetBooksReq";
 import { IResponse } from "../models/IResponse";
 import { IComment } from "../models/IComment";
+import { IReview } from "../models/IReview";
 
 const BASE_URL = process.env.REACT_APP_SERVER_ENDPOINT as string;
 
@@ -55,6 +56,12 @@ export const booksApi = createApi({
         method: "GET",
       }),
     }),
+    getReviews: build.query<IResponse<IReview[]>, {bookId: string; amount?: number}>({
+      query: (body) => ({
+        url: `${body.bookId}/reviews?amount=${body.amount ?? ""}`,
+        method: "GET",
+      }),
+    }),
     addComment: build.mutation<void, { comment: string; bookId: string }>({
       query: (body) => ({
         url: `comment`,
@@ -62,9 +69,22 @@ export const booksApi = createApi({
         body,
       }),
     }),
+    addReview: build.mutation<void, IReview>({
+      query: (body) => ({
+        url: `review`,
+        method: "POST",
+        body,
+      }),
+    }),
     getComment: build.query<IResponse<boolean>, string>({
       query: (bookId) => ({
         url: `${bookId}/user-comment`,
+        method: "GET",
+      }),
+    }),
+    getReview: build.query<IResponse<boolean>, string>({
+      query: (bookId) => ({
+        url: `${bookId}/user-review`,
         method: "GET",
       }),
     }),
@@ -155,5 +175,17 @@ export const booksApi = createApi({
         body: body.data,
       }),
     }),
+    likeReview: build.mutation<void, string>({
+      query: (reviewId) => ({
+        url: `review/${reviewId}/like`,
+        method: "POST"
+      })
+    }),
+    dislikeReview: build.mutation<void, string>({
+      query: (reviewId) => ({
+        url: `review/${reviewId}/dislike`,
+        method: "POST"
+      })
+    })
   }),
 });

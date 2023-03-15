@@ -11,6 +11,7 @@ namespace Bookstore.Domain.Shared.Contracts
         Task AddFragmentAsync(ObjectId id, ValueObjects.Path fragment);
         Task UpdateCoverAsync(ObjectId id, ValueObjects.Path cover);
         Task AddComment(Comment comment);
+        Task AddReview(Review review);
         Task UpdateCommentsByUserId(string id, string imageUrl);
         Task DeleteCommentAsync(string id);
         Task AddRating(Rating rating);
@@ -19,10 +20,15 @@ namespace Bookstore.Domain.Shared.Contracts
         Task<Rating> GetRating(string userId, string bookId);
         Task UpdateRating(string userId, string bookId, int rate);
         Task<Comment> GetComment(string userId, string bookId);
+        Task<Review> GetReview(string userId, string bookId);
+        Task<Review> GetReview(ObjectId reviewId);
         Task<List<Comment>> GetAllCommentsByBook(string bookId, int? amount);
+        Task<List<Review>> GetAllReviewsByBook(string bookId, int? amount);
         Task<List<Book>> GetAllBooksByIds(List<string> bookIds);
         long GetAllDocumentsCount();
         Task DeleteCommentsAndRatingsByUserId(string id);
         Task DeleteCommentsAndRatingsByBookId(string id);
+        Task UpdateReviewLikes(ObjectId id, List<string> likes);
+        Task UpdateReviewDislikes(ObjectId id, List<string> dislikes);
     }
 }

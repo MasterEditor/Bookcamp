@@ -151,6 +151,7 @@ namespace Bookstore.API.Services
 
             var result = new UserDataResponse()
             {
+                Id = id,
                 Birth = DateOnly.FromDateTime(user.Birthday),
                 Gender = user.Gender,
                 Name = user.Name,

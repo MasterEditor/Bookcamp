@@ -1,4 +1,6 @@
 export const userNameRegex = /^[a-zA-Z0-9-]{2,32}$/;
+export const textRegex =
+  /^[a-zA-ZА-Яа-я0-9- ]{2,32}$/;
 export const emailRegex =
   /^.{1,64}[@]{1}[a-zA-Z0-9-]{2,}([.]{1}[a-zA-Z0-9-]+)+$/;
 export const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,32}$/;

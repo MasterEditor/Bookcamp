@@ -3,13 +3,13 @@ import { FaUserCircle } from "react-icons/fa";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { booksApi } from "../services/booksApi";
 
-interface TextAreaInputProps {
+interface CommentInputProps {
   id: string;
   handleShowAlert: () => void;
 }
 
-function TextAreaInput({ id, handleShowAlert }: TextAreaInputProps) {
-  const { favourites, imageUrl } = useAppSelector((state) => state.user.user);
+function CommentInput({ id, handleShowAlert }: CommentInputProps) {
+  const { name, imageUrl } = useAppSelector((state) => state.user.user);
 
   const [comment, setComment] = useState("");
   const [validComment, setValidComment] = useState(false);
@@ -55,11 +55,11 @@ function TextAreaInput({ id, handleShowAlert }: TextAreaInputProps) {
         <FaUserCircle className="hidden lg:block text-[3rem] mr-5" />
       )}
       <form
-        className="flex flex-col w-[100%] xl:w-[60%]"
+        className="flex flex-col w-[100%] xl:w-[50%]"
         onSubmit={handleSubmit}
       >
         <textarea
-          className="rounded 2xl:w-[50rem] min-h-[5rem] h-[5rem] max-h-[8rem] overflow-auto"
+          className="rounded min-h-[5rem] h-[5rem] max-h-[8rem] overflow-auto"
           placeholder="Your comment"
           value={comment}
           onChange={(e) => setComment(e.target.value)}
@@ -72,8 +72,8 @@ function TextAreaInput({ id, handleShowAlert }: TextAreaInputProps) {
             symbols
           </p>
         )}
-        <div className="flex justify-end mt-4 2xl:mr-8">
-          {favourites ? (
+        <div className="flex justify-end mt-4">
+          {name ? (
             <button
               type="submit"
               className="text-white bg-black px-5 py-2 rounded-lg but-anim hover:opacity-80"
@@ -82,6 +82,7 @@ function TextAreaInput({ id, handleShowAlert }: TextAreaInputProps) {
             </button>
           ) : (
             <button
+              type="button"
               className="text-white bg-black px-5 py-2 rounded-lg but-anim hover:opacity-80"
               onClick={handleShowAlert}
             >
@@ -94,4 +95,4 @@ function TextAreaInput({ id, handleShowAlert }: TextAreaInputProps) {
   );
 }
 
-export default TextAreaInput;
+export default CommentInput;

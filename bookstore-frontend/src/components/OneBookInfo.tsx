@@ -28,6 +28,7 @@ function OneBookInfo({
   handleShowAlert,
   showAlert,
 }: OneBookInfoProps) {
+  const { favourites, name, role } = useAppSelector((state) => state.user.user);
   const rating: number[] = [1, 2, 3, 4, 5];
   const navigate = useNavigate();
   const fragmentRef = useRef<HTMLInputElement>(null);
@@ -37,8 +38,6 @@ function OneBookInfo({
   const [comments, setComments] = useState<IComment[]>([]);
   const [userRate, setUserRate] = useState(0);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-
-  const { favourites, name, role } = useAppSelector((state) => state.user.user);
 
   const { data: commentsData } = booksApi.useGetCommentsQuery({ bookId: id! });
   const { data: userRateData } = booksApi.useGetRatingQuery(id!);
@@ -55,6 +54,12 @@ function OneBookInfo({
     booksApi.useAddNewFragmentMutation();
   const [deleteFragment, { isSuccess: deleteFragmentSuccess }] =
     booksApi.useDeleteFragmentMutation();
+
+  useEffect(() => {
+    if (favourites?.includes(book.id)) {
+      setIsInFavourite(true);
+    }
+  }, [book]);
 
   useEffect(() => {
     setComments(commentsData?.body!);

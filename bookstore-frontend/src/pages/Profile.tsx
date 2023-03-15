@@ -165,7 +165,7 @@ function Profile() {
           </div>
           <button
             onClick={handleEditProfile}
-            className="flex flex-row justify-center items-center w-[10rem] bg-black text-white px-4 py-2 but-anim  hover:animate-wiggle"
+            className="flex flex-row justify-center items-center w-[10rem] bg-black text-white px-4 py-2 but-anim hover:animate-wiggle"
           >
             {!isEditing ? (
               <>

@@ -1,13 +1,13 @@
 import React, { useEffect } from "react";
-import { useCookies } from "react-cookie";
 import { FaUserCircle } from "react-icons/fa";
 import { IComment } from "../models/IComment";
 import { ImCross } from "react-icons/im";
 import { ADMIN } from "../constants/roles";
 import { booksApi } from "../services/booksApi";
+import { useAppSelector } from "../hooks/useAppSelector";
 
 function Comment(props: IComment) {
-  const [cookies] = useCookies(["bc_role"]);
+  const { role } = useAppSelector((state) => state.user.user);
 
   const [deleteComment, { isSuccess }] = booksApi.useDeleteCommentMutation();
 
@@ -26,7 +26,7 @@ function Comment(props: IComment) {
   };
 
   return (
-    <div className="flex flex-row justify-start my-8">
+    <div className="flex flex-row justify-start w-[25rem] p-5 h-[15rem] bg-[#edf2f4]">
       {props.imageUrl ? (
         <img src={props.imageUrl} className="rounded-full h-12 w-12" />
       ) : (
@@ -38,9 +38,9 @@ function Comment(props: IComment) {
           <span className="font-bold mx-2">-</span>
           <span className="font-bold">{props.addedTime}</span>
         </div>
-        <p className="text-sm max-w-[50rem] break-words">{props.comment}</p>
+        <p className="text-sm max-w-[15rem] break-words">{props.comment}</p>
       </div>
-      {cookies.bc_role === ADMIN && (
+      {role === ADMIN && (
         <div className="flex items-center">
           <ImCross
             className="text-red-700 cursor-pointer ml-10 but-anim hover:rotate-90"

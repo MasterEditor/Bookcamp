@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using AutoMapper;
 using Bookstore.API.DTOs;
 using Bookstore.API.Extensions;
+using Bookstore.API.Models.AddReview;
 using Bookstore.API.Models.GetImage;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.BookAggregate;
@@ -174,6 +175,34 @@ namespace Bookstore.API.Services
             Comment newReview = new(comment, bookId, userReview);
 
             await _bookRepository.AddComment(newReview);
+
+            return Unit.Default;
+        }
+
+        public async Task<Result<Unit>> AddReview(AddReviewRequest request, string userId)
+        {
+            var ex = await _bookRepository.GetReview(userId, request.BookId);
+
+            if (ex is not null)
+            {
+                return new Result<Unit>(new CommentAlreadyExistsException());
+            }
+
+            var user = await _userRepository.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new Result<Unit>(new UserNotFoundException());
+            }
+
+            Review review = new(
+                request.Title,
+                request.Body,
+                request.BookId,
+                userId,
+                request.Type);
+
+            await _bookRepository.AddReview(review);
 
             return Unit.Default;
         }
@@ -406,6 +435,32 @@ namespace Bookstore.API.Services
 
         }
 
+        public async Task<Result<Arr<ReviewDTO>>> GetReviews(string bookId, int? amount)
+        {
+            var reviews = await _bookRepository.GetAllReviewsByBook(bookId, amount);
+
+            if (reviews is null
+                || reviews.Count == 0)
+            {
+                return new Result<Arr<ReviewDTO>>(new Arr<ReviewDTO>());
+            }
+
+            var users = await _userRepository.GetAll();
+
+            return reviews.Select(x => new ReviewDTO()
+            {
+                Id = x.Id.ToString(),
+                Title = x.Title,
+                Body = x.Body,
+                Dislikes = x.Dislikes.ToArr(),
+                Likes = x.Likes.ToArr(),
+                AddedTime = GetDateDifference(x.AddedAt),
+                Type = x.ReviewType,
+                UserName = users.First(u => u.Id.ToString() == x.UserId).Name,
+                ImageUrl = users.First(u => u.Id.ToString() == x.UserId).Image?.Url,
+            }).ToArr();
+        }
+
         public async Task<Result<Arr<BookDTO>>> GetTopRateBooks(int number)
         {
             var result = await _bookRepository.FilterBy(_ => true, x => x.Rating, number);
@@ -446,6 +501,18 @@ namespace Bookstore.API.Services
         public async Task<Result<bool>> IsUserAddedComment(string bookId, string userId)
         {
             var review = await _bookRepository.GetComment(userId, bookId);
+
+            if (review is null)
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        public async Task<Result<bool>> IsUserAddedReview(string bookId, string userId)
+        {
+            var review = await _bookRepository.GetReview(userId, bookId);
 
             if (review is null)
             {
@@ -523,6 +590,40 @@ namespace Bookstore.API.Services
             }
 
             await _bookRepository.DeleteFragmentAsync(book.Id, extension);
+
+            return Unit.Default;
+        }
+
+        public async Task<Result<Unit>> LikeReview(string reviewId, string userId)
+        {
+            var review = await _bookRepository.GetReview(ObjectId.Parse(reviewId));
+
+            if (review is null)
+            {
+                return new Result<Unit>(new ReviewNotFoundException());
+            }
+
+            review.Like(userId);
+
+            await _bookRepository.UpdateReviewLikes(review.Id, review.Likes);
+            await _bookRepository.UpdateReviewDislikes(review.Id, review.Dislikes);
+
+            return Unit.Default;
+        }
+
+        public async Task<Result<Unit>> DislikeReview(string reviewId, string userId)
+        {
+            var review = await _bookRepository.GetReview(ObjectId.Parse(reviewId));
+
+            if (review is null)
+            {
+                return new Result<Unit>(new ReviewNotFoundException());
+            }
+
+            review.Dislike(userId);
+
+            await _bookRepository.UpdateReviewDislikes(review.Id, review.Dislikes);
+            await _bookRepository.UpdateReviewLikes(review.Id, review.Likes);
 
             return Unit.Default;
         }

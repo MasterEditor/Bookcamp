@@ -4,6 +4,7 @@ import {
   maxDate,
   minDate,
   passwordRegex,
+  textRegex,
   userNameRegex,
 } from "../constants/regularExpression";
 
@@ -12,6 +13,7 @@ export const NAME_REGEX = "name";
 export const PASSWORD_REGEX = "password";
 export const BIRTHDAY = "birthday";
 export const REQUIRED = "required";
+export const TEXT_REGEX = "text";
 
 export interface IValidationResult {
   isRegexPass: boolean;
@@ -35,6 +37,14 @@ export const useValidation = (
       case EMAIL_REGEX:
         result = value.match(emailRegex);
         errorMessage = "Email is not valid";
+        setValidationResult({
+          isRegexPass: result !== null,
+          errorMessage,
+        });
+        break;
+      case TEXT_REGEX:
+        result = value.match(textRegex);
+        errorMessage = "Must be no shorter than 2 and no longer than 32 characters. Only alphabet, digits and symbol of '-'";
         setValidationResult({
           isRegexPass: result !== null,
           errorMessage,

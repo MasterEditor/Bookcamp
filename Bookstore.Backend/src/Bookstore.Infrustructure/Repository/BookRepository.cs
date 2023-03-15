@@ -1,19 +1,23 @@
 ﻿using Bookstore.Domain.Aggregates.BookAggregate;
+using Bookstore.Domain.Aggregates.UserAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static System.Net.Mime.MediaTypeNames;
 
 namespace Bookstore.Infrustructure.Repository
 {
     public sealed class BookRepository : MongoRepository<Book>, IBookRepository
     {
-        private readonly IMongoCollection<Comment> _reviewCollection;
+        private readonly IMongoCollection<Comment> _commentCollection;
+        private readonly IMongoCollection<Review> _reviewCollection;
         private readonly IMongoCollection<Rating> _ratingCollection;
 
         public BookRepository(IMongoDbContext context) : base(context)
         {
-            _reviewCollection = _context.GetCollection<Comment>(GetCollectionName(typeof(Comment)));
+            _commentCollection = _context.GetCollection<Comment>(GetCollectionName(typeof(Comment)));
+            _reviewCollection = _context.GetCollection<Review>(GetCollectionName(typeof(Review)));
             _ratingCollection = _context.GetCollection<Rating>(GetCollectionName(typeof(Rating)));
         }
 
@@ -24,25 +28,30 @@ namespace Bookstore.Infrustructure.Repository
 
         public async Task AddComment(Comment comment)
         {
-            await _reviewCollection.InsertOneAsync(comment);
+            await _commentCollection.InsertOneAsync(comment);
+        }
+
+        public async Task AddReview(Review review)
+        {
+            await _reviewCollection.InsertOneAsync(review);
         }
 
         public async Task DeleteCommentAsync(string id)
         {
             var objectId = new ObjectId(id);
 
-            await _reviewCollection.DeleteOneAsync(x => x.Id == objectId);
+            await _commentCollection.DeleteOneAsync(x => x.Id == objectId);
         }
 
         public async Task DeleteCommentsAndRatingsByBookId(string id)
         {
-            await _reviewCollection.DeleteManyAsync(x => x.BookId == id);
+            await _commentCollection.DeleteManyAsync(x => x.BookId == id);
             await _ratingCollection.DeleteManyAsync(x => x.BookId == id);
         }
 
         public async Task DeleteCommentsAndRatingsByUserId(string id)
         {
-            await _reviewCollection.DeleteManyAsync(x => x.User.UserId == id);
+            await _commentCollection.DeleteManyAsync(x => x.User.UserId == id);
             await _ratingCollection.DeleteManyAsync(x => x.UserId == id);
         }
 
@@ -64,6 +73,14 @@ namespace Bookstore.Infrustructure.Repository
         }
 
         public async Task<List<Comment>> GetAllCommentsByBook(string bookId, int? amount)
+        {
+            return await _commentCollection.Find(x => x.BookId == bookId)
+                .SortByDescending(x => x.AddedAt)
+                .Limit(amount)
+                .ToListAsync();
+        }
+
+        public async Task<List<Review>> GetAllReviewsByBook(string bookId, int? amount)
         {
             return await _reviewCollection.Find(x => x.BookId == bookId)
                 .SortByDescending(x => x.AddedAt)
@@ -91,7 +108,19 @@ namespace Bookstore.Infrustructure.Repository
 
         public async Task<Comment> GetComment(string userId, string bookId)
         {
-            return await _reviewCollection.Find(x => x.User.UserId == userId && x.BookId == bookId)
+            return await _commentCollection.Find(x => x.User.UserId == userId && x.BookId == bookId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Review> GetReview(string userId, string bookId)
+        {
+            return await _reviewCollection.Find(x => x.UserId == userId && x.BookId == bookId)
+                .FirstOrDefaultAsync();
+        }
+
+        public async Task<Review> GetReview(ObjectId reviewId)
+        {
+            return await _reviewCollection.Find(x => x.Id == reviewId)
                 .FirstOrDefaultAsync();
         }
 
@@ -100,7 +129,7 @@ namespace Bookstore.Infrustructure.Repository
             var filter = Builders<Comment>.Filter.Eq(x => x.User.UserId, id);
             var update = Builders<Comment>.Update.Set(x => x.User.ImageUrl, imageUrl);
 
-            await _reviewCollection.UpdateManyAsync(filter, update);
+            await _commentCollection.UpdateManyAsync(filter, update);
         }
 
         public async Task UpdateBookRate(string bookId, float rate)
@@ -161,6 +190,22 @@ namespace Bookstore.Infrustructure.Repository
             var update = Builders<Book>.Update.Push(x => x.FragmentPaths, fragment);
 
             await _collection.FindOneAndUpdateAsync(filter, update);
+        }
+
+        public async Task UpdateReviewLikes(ObjectId id, List<string> likes)
+        {
+            var filter = Builders<Review>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Review>.Update.Set(x => x.Likes, likes);
+
+            await _reviewCollection.UpdateOneAsync(filter, update);
+        }
+
+        public async Task UpdateReviewDislikes(ObjectId id, List<string> dislikes)
+        {
+            var filter = Builders<Review>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Review>.Update.Set(x => x.Dislikes, dislikes);
+
+            await _reviewCollection.UpdateOneAsync(filter, update);
         }
     }
 }

@@ -2,6 +2,7 @@
 using Bookstore.API.Models;
 using Bookstore.API.Models.AddBook;
 using Bookstore.API.Models.AddComment;
+using Bookstore.API.Models.AddReview;
 using Bookstore.API.Models.GetBooks;
 using Bookstore.API.Models.Rate;
 using Bookstore.API.Models.UploadImage;
@@ -114,6 +115,36 @@ namespace Bookstore.API.Controllers
             return response.ToOk();
         }
 
+        [HttpGet("{bookId}/reviews")]
+        public async Task<IActionResult> GetReviews([FromRoute] string bookId, [FromQuery] int? amount)
+        {
+            var response = await _booksService.GetReviews(bookId, amount);
+
+            return response.ToOk();
+        }
+
+        [HttpPost("review/{reviewId}/like")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> LikeReview([FromRoute] string reviewId)
+        {
+            var userId = HttpContext.GetUserId();
+
+            var response = await _booksService.LikeReview(reviewId, userId);
+
+            return response.ToOk();
+        }
+
+        [HttpPost("review/{reviewId}/dislike")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> DislikeReview([FromRoute] string reviewId)
+        {
+            var userId = HttpContext.GetUserId();
+
+            var response = await _booksService.DislikeReview(reviewId, userId);
+
+            return response.ToOk();
+        }
+
         [HttpGet("{bookId}/user-comment")]
         [Authorize(Policy = "User")]
         public async Task<IActionResult> GetComment([FromRoute] string bookId)
@@ -121,6 +152,17 @@ namespace Bookstore.API.Controllers
             var userId = HttpContext.GetUserId();
 
             var response = await _booksService.IsUserAddedComment(bookId, userId);
+
+            return response.ToOk();
+        }
+
+        [HttpGet("{bookId}/user-review")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> GetReview([FromRoute] string bookId)
+        {
+            var userId = HttpContext.GetUserId();
+
+            var response = await _booksService.IsUserAddedReview(bookId, userId);
 
             return response.ToOk();
         }
@@ -264,6 +306,17 @@ namespace Bookstore.API.Controllers
             var response = await _booksService.AddFragment(request.File, id, serverUrl);
 
             return response.ToOk();
+        }
+
+        [HttpPost("review")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> AddReview([FromBody] AddReviewRequest request)
+        {
+            string id = HttpContext.GetUserId();
+
+            var response = await _booksService.AddReview(request, id);
+
+            return Ok();
         }
     }
 }
