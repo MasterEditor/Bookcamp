@@ -16,6 +16,9 @@ namespace Bookstore.Domain.Shared.Contracts
         Task<List<TDocument>> FilterBy(
             Expression<Func<TDocument, bool>> filterExpression,
             int limit);
+        Task<List<TDocument>> FilterBy(
+            FilterDefinition<TDocument> filter,
+            int limit);
         Task<List<TDocument>> FilterByWithPagesAsync(int page, int pageSize, FilterDefinition<TDocument> filter);
         Task<TDocument> FindByIdAsync(string id);
         Task InsertOneAsync(TDocument document);

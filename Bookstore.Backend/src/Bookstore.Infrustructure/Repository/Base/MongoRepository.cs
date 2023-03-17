@@ -66,6 +66,15 @@ namespace Bookstore.Infrustructure.Repository.Base
                 .ToListAsync();
         }
 
+        public virtual async Task<List<TDocument>> FilterBy(
+            FilterDefinition<TDocument> filter,
+            int limit)
+        {
+            return await _collection.Find(filter)
+                .Limit(limit)
+                .ToListAsync();
+        }
+
         public virtual async Task<List<TDocument>> FilterByWithPagesAsync(
             int page,
             int pageSize,

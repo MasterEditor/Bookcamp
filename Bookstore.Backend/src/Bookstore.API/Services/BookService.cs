@@ -227,11 +227,13 @@ namespace Bookstore.API.Services
         {
             Expression<Func<Book, bool>> expression = _ => true;
             FilterDefinition<Book>? filter = null;
+            FilterDefinition<Book>? fullTextFilter = null;
             var builder = Builders<Book>.Filter;
 
             if (keywords is not null)
             {
                 filter = builder.Regex(nameof(Book.Name), new BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
+                fullTextFilter = Builders<Book>.Filter.Text(keywords);
             }
 
             if (genre is not null)
@@ -239,17 +241,29 @@ namespace Bookstore.API.Services
                 expression = x => string.Equals(genre, x.Genre);
             }
 
-            var result = await _bookRepository.FilterByWithPagesAsync(page, pageSize, filter ?? expression);
+            var searchResult = await _bookRepository.FilterBy(filter ?? expression, 0);
 
-            if (result.Count == 0)
+            if (searchResult.Count == 0)
             {
                 if (keywords is not null)
                 {
                     filter = builder.Regex(nameof(Book.Author), new BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
 
-                    result = await _bookRepository.FilterByWithPagesAsync(page, pageSize, filter);
+                    searchResult = await _bookRepository.FilterBy(filter, 0);
                 }
             }
+
+            List<Book>? fullTextResult = new();
+
+            if (fullTextFilter is not null)
+            {
+                fullTextResult = await _bookRepository.FilterBy(fullTextFilter, 0);
+            }
+
+            var result = searchResult.Union(fullTextResult)
+                .Skip((page - 1) * pageSize)
+                .Take(pageSize)
+                .ToList();
 
             return result.Select(x => new BookDTO()
             {
@@ -430,7 +444,8 @@ namespace Bookstore.API.Services
                 ImageUrl = x.User.ImageUrl,
                 Comment = x.Text,
                 UserName = x.User.UserName,
-                AddedTime = GetDateDifference(x.AddedAt)
+                AddedTime = GetDateDifference(x.AddedAt),
+                AddedAt = x.AddedAt
             }).ToArr();
 
         }
@@ -454,6 +469,53 @@ namespace Bookstore.API.Services
                 Body = x.Body,
                 Dislikes = x.Dislikes.ToArr(),
                 Likes = x.Likes.ToArr(),
+                AddedAt = x.AddedAt,
+                AddedTime = GetDateDifference(x.AddedAt),
+                Type = x.ReviewType,
+                UserName = users.First(u => u.Id.ToString() == x.UserId).Name,
+                ImageUrl = users.First(u => u.Id.ToString() == x.UserId).Image?.Url,
+            }).ToArr();
+        }
+
+        public async Task<Result<Arr<ReviewDTO>>> SearchReviews(string keywords, string bookId)
+        {
+            List<Review> result;
+
+            if (!string.IsNullOrEmpty(keywords))
+            {
+                FilterDefinition<Review>? filter = Builders<Review>.Filter.Text(keywords);
+
+                result = await _bookRepository.FilterReviews(filter, bookId);
+
+                filter = Builders<Review>.Filter.Regex(nameof(Review.Title), new BsonRegularExpression(new Regex(keywords, RegexOptions.IgnoreCase)));
+
+                var titleResult = await _bookRepository.FilterReviews(filter, bookId);
+
+                if (titleResult is not null && titleResult.Count > 0)
+                {
+                    result.AddRange(titleResult);
+                }
+            }
+            else
+            {
+                result = await _bookRepository.GetAllReviewsByBook(bookId, 0);
+            }
+
+            if (result.Count == 0)
+            {
+                return new Result<Arr<ReviewDTO>>(new Arr<ReviewDTO>());
+            }
+
+            var users = await _userRepository.GetAll();
+
+            return result.Select(x => new ReviewDTO()
+            {
+                Id = x.Id.ToString(),
+                Title = x.Title,
+                Body = x.Body,
+                Dislikes = x.Dislikes.ToArr(),
+                Likes = x.Likes.ToArr(),
+                AddedAt = x.AddedAt,
                 AddedTime = GetDateDifference(x.AddedAt),
                 Type = x.ReviewType,
                 UserName = users.First(u => u.Id.ToString() == x.UserId).Name,

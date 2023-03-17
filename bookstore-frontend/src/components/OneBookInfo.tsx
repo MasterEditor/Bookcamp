@@ -56,7 +56,7 @@ function OneBookInfo({
     booksApi.useDeleteFragmentMutation();
 
   useEffect(() => {
-    if (favourites?.includes(book.id)) {
+    if (book && favourites?.includes(book.id)) {
       setIsInFavourite(true);
     }
   }, [book]);

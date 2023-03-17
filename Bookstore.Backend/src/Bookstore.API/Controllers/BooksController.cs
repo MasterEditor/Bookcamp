@@ -318,5 +318,13 @@ namespace Bookstore.API.Controllers
 
             return Ok();
         }
+
+        [HttpGet("reviews/search/{bookId}")]
+        public async Task<IActionResult> SearchReviews([FromRoute] string bookId, [FromQuery] string keywords)
+        {
+            var response = await _booksService.SearchReviews(keywords, bookId);
+
+            return response.ToOk();
+        }
     }
 }

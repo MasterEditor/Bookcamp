@@ -4,6 +4,7 @@ import { useAppSelector } from "../hooks/useAppSelector";
 import { useInput } from "../hooks/useInput";
 import { TEXT_REGEX } from "../hooks/useValidation";
 import { IReview } from "../models/IReview";
+import { ReviewType } from "../models/ReviewType";
 import { booksApi } from "../services/booksApi";
 import FormInput from "./FormInput";
 
@@ -19,7 +20,7 @@ function ReviewInput({ id, handleShowAlert }: ReviewInputProps) {
 
   const title = useInput("", TEXT_REGEX);
   const [body, setBody] = useState("");
-  const [type, setType] = useState("1");
+  const [type, setType] = useState(ReviewType.Positive.toString());
   const [validBody, setValidBody] = useState(false);
   const [isReviewAdded, setIsReviewAdded] = useState(false);
   const [bodyFilled, setBodyFilled] = useState(false);
@@ -85,9 +86,9 @@ function ReviewInput({ id, handleShowAlert }: ReviewInputProps) {
           value={type}
           onChange={(e) => setType(e.target.value)}
         >
-          <option value="1">Positive</option>
-          <option value="2">Negative</option>
-          <option value="3">Neutral</option>
+          <option value={ReviewType.Positive}>Positive</option>
+          <option value={ReviewType.Negative}>Negative</option>
+          <option value={ReviewType.Neutral}>Neutral</option>
         </select>
         <FormInput id="title" type="text" placeholder="Title" input={title} />
         <label

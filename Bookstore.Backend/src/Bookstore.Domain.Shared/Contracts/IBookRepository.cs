@@ -1,5 +1,7 @@
-﻿using Bookstore.Domain.Aggregates.BookAggregate;
+﻿using System.Linq.Expressions;
+using Bookstore.Domain.Aggregates.BookAggregate;
 using MongoDB.Bson;
+using MongoDB.Driver;
 
 namespace Bookstore.Domain.Shared.Contracts
 {
@@ -30,5 +32,6 @@ namespace Bookstore.Domain.Shared.Contracts
         Task DeleteCommentsAndRatingsByBookId(string id);
         Task UpdateReviewLikes(ObjectId id, List<string> likes);
         Task UpdateReviewDislikes(ObjectId id, List<string> dislikes);
+        Task<List<Review>> FilterReviews(FilterDefinition<Review> filter, string bookId);
     }
 }

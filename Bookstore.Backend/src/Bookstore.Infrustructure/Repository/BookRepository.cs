@@ -1,4 +1,5 @@
-﻿using Bookstore.Domain.Aggregates.BookAggregate;
+﻿using System.Linq.Expressions;
+using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Aggregates.UserAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
@@ -29,6 +30,16 @@ namespace Bookstore.Infrustructure.Repository
         public async Task AddComment(Comment comment)
         {
             await _commentCollection.InsertOneAsync(comment);
+        }
+
+        public async Task<List<Review>> FilterReviews(FilterDefinition<Review> filter, string bookId)
+        {
+            var result = await _reviewCollection
+                .Find(filter)
+                .ToListAsync();
+
+            return result.Where(x => x.BookId == bookId)
+                .ToList();
         }
 
         public async Task AddReview(Review review)

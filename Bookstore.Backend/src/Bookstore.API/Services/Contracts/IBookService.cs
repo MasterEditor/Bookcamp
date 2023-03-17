@@ -45,5 +45,6 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<Unit>> AddReview(AddReviewRequest request, string userId);
         Task<Result<Unit>> LikeReview(string reviewId, string userId);
         Task<Result<Unit>> DislikeReview(string reviewId, string userId);
+        Task<Result<Arr<ReviewDTO>>> SearchReviews(string keywords, string bookId);
     }
 }

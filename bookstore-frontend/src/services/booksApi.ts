@@ -50,17 +50,25 @@ export const booksApi = createApi({
         method: "GET",
       }),
     }),
-    getComments: build.query<IResponse<IComment[]>, {bookId: string; amount?: number}>({
+    getComments: build.query<
+      IResponse<IComment[]>,
+      { bookId: string; amount?: number }
+    >({
       query: (body) => ({
         url: `${body.bookId}/comments?amount=${body.amount ?? ""}`,
         method: "GET",
       }),
+      keepUnusedDataFor: 0.0001,
     }),
-    getReviews: build.query<IResponse<IReview[]>, {bookId: string; amount?: number}>({
+    getReviews: build.query<
+      IResponse<IReview[]>,
+      { bookId: string; amount?: number }
+    >({
       query: (body) => ({
         url: `${body.bookId}/reviews?amount=${body.amount ?? ""}`,
         method: "GET",
       }),
+      keepUnusedDataFor: 0.0001,
     }),
     addComment: build.mutation<void, { comment: string; bookId: string }>({
       query: (body) => ({
@@ -178,14 +186,24 @@ export const booksApi = createApi({
     likeReview: build.mutation<void, string>({
       query: (reviewId) => ({
         url: `review/${reviewId}/like`,
-        method: "POST"
-      })
+        method: "POST",
+      }),
     }),
     dislikeReview: build.mutation<void, string>({
       query: (reviewId) => ({
         url: `review/${reviewId}/dislike`,
-        method: "POST"
-      })
-    })
+        method: "POST",
+      }),
+    }),
+    searchReviews: build.query<
+      IResponse<IReview[]>,
+      { bookId: string; keywords: string }
+    >({
+      query: (body) => ({
+        url: `reviews/search/${body.bookId}?keywords=${body.keywords}`,
+        method: "GET",
+      }),
+      keepUnusedDataFor: 0.0001,
+    }),
   }),
 });

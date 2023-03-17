@@ -4,4 +4,5 @@ export interface IComment {
   userName: string;
   imageUrl: string;
   addedTime: string;
+  addedAt: string;
 }

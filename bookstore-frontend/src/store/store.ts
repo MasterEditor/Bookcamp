@@ -1,12 +1,14 @@
 import { combineReducers, configureStore } from "@reduxjs/toolkit";
 import { authApi } from "../services/authApi";
 import { booksApi } from "../services/booksApi";
+import { reviewsSlice } from "../services/reviewsSlice";
 import { userSlice } from "../services/userSlice";
 
 export const rootReducer = combineReducers({
   [authApi.reducerPath]: authApi.reducer,
   [booksApi.reducerPath]: booksApi.reducer,
   [userSlice.name]: userSlice.reducer,
+  [reviewsSlice.name]: reviewsSlice.reducer
 });
 
 export const setUpStore = () => {

@@ -7,5 +7,6 @@
         public string UserName { get; init; }
         public string ImageUrl { get; init; }
         public string AddedTime { get; init; }
+        public DateTime AddedAt { get; init; }
     }
 }
