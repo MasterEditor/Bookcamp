@@ -57,7 +57,7 @@ function OneBookFeedback({ id, handleShowAlert }: OneBookFeedbackProps) {
       <Modal
         visible={isReviewModal}
         title="Reviews"
-        content={<ModalReviews id={id} />}
+        content={<ModalReviews id={id}/>}
         onClose={onReviewClose}
       />
       <Modal
