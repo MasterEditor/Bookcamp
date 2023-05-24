@@ -17,7 +17,7 @@ function Comment(props: IComment) {
     }
   }, [isSuccess]);
 
-  const handleDeleteReview = () => {
+  const handleDeleteComment = () => {
     const res = window.confirm("Are you sure?");
 
     if (res) {
@@ -26,7 +26,7 @@ function Comment(props: IComment) {
   };
 
   return (
-    <div className="flex flex-row justify-start w-[25rem] p-5 h-[15rem] bg-[#edf2f4]">
+    <div className="flex flex-row justify-start w-[27rem] p-5 h-[15rem] bg-[#edf2f4]">
       {props.imageUrl ? (
         <img src={props.imageUrl} className="rounded-full h-12 w-12" />
       ) : (
@@ -38,13 +38,13 @@ function Comment(props: IComment) {
           <span className="font-bold mx-2">-</span>
           <span className="font-bold">{props.addedTime}</span>
         </div>
-        <p className="text-sm max-w-[15rem] break-words">{props.comment}</p>
+        <p className="text-sm max-w-[18rem] break-words">{props.comment}</p>
       </div>
       {role === ADMIN && (
         <div className="flex items-center">
           <ImCross
             className="text-red-700 cursor-pointer ml-10 but-anim hover:rotate-90"
-            onClick={handleDeleteReview}
+            onClick={handleDeleteComment}
           />
         </div>
       )}

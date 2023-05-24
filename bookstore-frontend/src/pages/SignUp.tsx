@@ -12,8 +12,10 @@ import {
 } from "../hooks/useValidation";
 import { ISignup } from "../models/ISignup";
 import { authApi } from "../services/authApi";
+import { useTranslation } from "react-i18next";
 
 function SignUp() {
+  const { t } = useTranslation();
   const [signUpUser, { isLoading, isSuccess, error, isError }] =
     authApi.useSignupUserMutation();
 
@@ -61,25 +63,30 @@ function SignUp() {
           className="bg-white shadow-md w-full rounded-lg px-8 pt-6 pb-8 mb-4"
         >
           <h2 className="text-xl mb-8 mt-6 text-center font-bold">
-            Sign up to bookstore
+            {t("signupLine1")!}
           </h2>
           <FormInput
             id="username"
             type="text"
-            placeholder="Username"
+            placeholder={t("signupLine2")!}
             input={name}
           />
-          <FormInput id="email" type="text" placeholder="Email" input={email} />
+          <FormInput
+            id="email"
+            type="text"
+            placeholder={t("loginLine2")!}
+            input={email}
+          />
           <FormInput
             id="password"
             type="password"
-            placeholder="Password"
+            placeholder={t("loginLine3")!}
             input={password}
           />
           <FormInput
             id="date"
             type="date"
-            placeholder="Birthday"
+            placeholder={t("signupLine3")!}
             input={birthday}
             max={maxDate}
             min={minDate}
@@ -92,7 +99,7 @@ function SignUp() {
             onClick={() => setGender(1)}
           />
           <label htmlFor="man" className="mr-2">
-            Man
+            {t("signupLine4")!}
           </label>
           <input
             id="woman"
@@ -100,7 +107,7 @@ function SignUp() {
             name="status"
             onClick={() => setGender(2)}
           />
-          <label htmlFor="woman">Woman</label>
+          <label htmlFor="woman">{t("signupLine5")!}</label>
           {errorMessage && (
             <p className="text-red-500 mt-1 text-sm italic">{errorMessage}</p>
           )}
@@ -115,12 +122,12 @@ function SignUp() {
             type="submit"
             className="rounded-xl bg-[#2c968f] text-white p-2 w-full mt-3 mb-4 transition duration-300 ease-in-out hover:opacity-90"
           >
-            Create an account
+            {t("signupLine6")!}
           </button>
-          <p className="text-center">Already have account?</p>
+          <p className="text-center">{t("signupLine7")!}</p>
           <p className="underline underline-offset-2 text-center">
             <Link to="/login" className="text-[#cc9f36]">
-              Login
+              {t("headerLine2")!}
             </Link>
           </p>
         </form>

@@ -5,8 +5,13 @@ import { FaUserCircle } from "react-icons/fa";
 import { useAppSelector } from "../hooks/useAppSelector";
 import { IReview } from "../models/IReview";
 import { booksApi } from "../services/booksApi";
+import { ImCross } from "react-icons/im";
+import { ADMIN } from "../constants/roles";
 
 function Review(props: IReview) {
+  const { role } = useAppSelector((state) => state.user.user);
+
+  const [deleteReview, { isSuccess }] = booksApi.useDeleteReviewMutation();
   const userId = useAppSelector((x) => x.user.user.id);
   const [reviewBg, setReviewBg] = useState("");
   const [addLike] = booksApi.useLikeReviewMutation();
@@ -30,6 +35,12 @@ function Review(props: IReview) {
         break;
     }
   }, []);
+
+  useEffect(() => {
+    if (isSuccess) {
+      window.location.reload();
+    }
+  }, [isSuccess]);
 
   const handleLikeClick = () => {
     if (!userId) {
@@ -65,6 +76,14 @@ function Review(props: IReview) {
     if (likes?.find((x) => x === userId)) {
       setLikes(likes.filter((x) => x !== userId));
       setIsLiked(false);
+    }
+  };
+
+  const handleDeleteReview = () => {
+    const res = window.confirm("Are you sure?");
+
+    if (res) {
+      deleteReview(props.id!);
     }
   };
 
@@ -109,6 +128,14 @@ function Review(props: IReview) {
           <span>{dislikes?.length}</span>
         </div>
       </div>
+      {role === ADMIN && (
+        <div className="flex items-center">
+          <ImCross
+            className="text-red-700 cursor-pointer ml-10 but-anim hover:rotate-90"
+            onClick={handleDeleteReview}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,11 +1,8 @@
-﻿using System.Linq.Expressions;
-using Bookstore.Domain.Aggregates.BookAggregate;
-using Bookstore.Domain.Aggregates.UserAggregate;
+﻿using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
 using MongoDB.Bson;
 using MongoDB.Driver;
-using static System.Net.Mime.MediaTypeNames;
 
 namespace Bookstore.Infrustructure.Repository
 {
@@ -48,6 +45,13 @@ namespace Bookstore.Infrustructure.Repository
         }
 
         public async Task DeleteCommentAsync(string id)
+        {
+            var objectId = new ObjectId(id);
+
+            await _reviewCollection.DeleteOneAsync(x => x.Id == objectId);
+        }
+
+        public async Task DeleteReviewAsync(string id)
         {
             var objectId = new ObjectId(id);
 

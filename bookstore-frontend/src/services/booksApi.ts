@@ -141,6 +141,12 @@ export const booksApi = createApi({
         method: "DELETE",
       }),
     }),
+    deleteReview: build.mutation<void, string>({
+      query: (id) => ({
+        url: `review/${id}`,
+        method: "DELETE",
+      }),
+    }),
     deleteBook: build.mutation<void, string>({
       query: (id) => ({
         url: `${id}`,

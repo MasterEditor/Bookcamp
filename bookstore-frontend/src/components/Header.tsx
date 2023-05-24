@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import logo from "../pics/logo.svg";
+import russian from "../pics/russia.png";
+import english from "../pics/united-kingdom.png";
 import { FaSearch, FaUserCircle } from "react-icons/fa";
 import { RiArrowDropDownFill, RiArrowDropUpFill } from "react-icons/ri";
 import { createSearchParams, Link, useNavigate } from "react-router-dom";
@@ -8,9 +10,12 @@ import { authApi } from "../services/authApi";
 import { useActions } from "../hooks/useActions";
 import { Menu, Transition } from "@headlessui/react";
 import classNames from "classnames";
+import { useTranslation } from "react-i18next";
 
 function Header() {
   const { data, isLoading, isSuccess } = authApi.useMeQuery();
+  const { t, i18n } = useTranslation();
+  const [langToggle, setLangToggle] = useState(true);
 
   const [logoutUserQuery, { isSuccess: isLogoutSuccess }] =
     authApi.useLazyLogoutUserQuery();
@@ -69,6 +74,15 @@ function Header() {
 
   window.addEventListener("scroll", handleScroll);
 
+  const handleToggleClick = () => {
+    if (langToggle) {
+      i18n.changeLanguage("en");
+    } else {
+      i18n.changeLanguage("ru");
+    }
+    setLangToggle(!langToggle);
+  };
+
   return (
     <div
       onScroll={handleScroll}
@@ -108,7 +122,7 @@ function Header() {
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               id="search"
-              placeholder="Search books"
+              placeholder={t("headerLine1")!}
               className="lg:h-[2.5rem] h-[2rem] text-[0.6rem] lg:text-sm w-full pl-3 bg-white rounded-lg focus:outline-none focus:ring-[0.1rem] focus:ring-slate-600"
             />
             <button
@@ -120,7 +134,35 @@ function Header() {
           </form>
         )}
       </div>
-      <div className="flex flex-row justify-end flex-1">
+      <div className="flex flex-row items-center justify-end flex-1">
+        <img
+          src={russian}
+          className={classNames(
+            "w-[30px] h-[30px]",
+            scrollLimit ? "hidden" : "visible"
+          )}
+        />
+        <div
+          className={classNames(
+            "w-[40px] h-[20px] relative bg-[#f1f1f1] flex items-center ml-2 mr-2 rounded-lg",
+            scrollLimit ? "hidden" : "visible"
+          )}
+          onClick={handleToggleClick}
+        >
+          <div
+            className={classNames(
+              langToggle ? "left-[-1px]" : "right-[-2px]",
+              "absolute bg-[rgb(248,180,217,1)] w-[20px] h-[20px] rounded-lg"
+            )}
+          ></div>
+        </div>
+        <img
+          src={english}
+          className={classNames(
+            "w-[30px] h-[30px] mr-6",
+            scrollLimit ? "hidden" : "visible"
+          )}
+        />
         {logouted ? (
           <Link
             to="/login"
@@ -131,7 +173,7 @@ function Header() {
               "flex items-center px-7 rounded-lg transition duration-300 ease-in-out"
             )}
           >
-            <p className="text-[0.7rem] lg:text-[1rem]">Login</p>
+            <p className="text-[0.7rem] lg:text-[1rem]">{t("headerLine2")!}</p>
           </Link>
         ) : (
           <Menu as="div" className="relative inline-block text-left">

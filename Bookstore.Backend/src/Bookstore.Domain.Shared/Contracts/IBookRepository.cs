@@ -16,6 +16,7 @@ namespace Bookstore.Domain.Shared.Contracts
         Task AddReview(Review review);
         Task UpdateCommentsByUserId(string id, string imageUrl);
         Task DeleteCommentAsync(string id);
+        Task DeleteReviewAsync(string id);
         Task AddRating(Rating rating);
         Task<float> GetRateByAllRates(string bookId);
         Task UpdateBookRate(string bookId, float rate);

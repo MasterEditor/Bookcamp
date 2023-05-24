@@ -100,7 +100,7 @@ function AddBook() {
               id="file"
               type="file"
               accept=".pdf, .epub, .txt, .fb2"
-              className="mb-6"
+              className="mb-6 w-[15rem]"
               onChange={onFragmentsChange}
               multiple={true}
             />
@@ -115,7 +115,7 @@ function AddBook() {
               id="cover"
               type="file"
               accept=".png, .jpg, .jpeg"
-              className="mb-6"
+              className="mb-6 w-[15rem]"
               onChange={onCoverChange}
               multiple={false}
             />

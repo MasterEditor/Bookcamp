@@ -257,6 +257,15 @@ namespace Bookstore.API.Controllers
             return response.ToOk();
         }
 
+        [HttpDelete("review/{id}")]
+        [Authorize(Policy = "Admin")]
+        public async Task<IActionResult> DeleteReview([FromRoute] string id)
+        {
+            var response = await _booksService.DeleteReview(id);
+
+            return response.ToOk();
+        }
+
         [HttpDelete("{id}")]
         [Authorize(Policy = "Admin")]
         public async Task<IActionResult> DeleteBook([FromRoute] string id)

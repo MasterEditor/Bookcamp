@@ -8,8 +8,10 @@ import { useInput } from "../hooks/useInput";
 import { REQUIRED } from "../hooks/useValidation";
 import { ILogin } from "../models/ILogin";
 import { authApi } from "../services/authApi";
+import { useTranslation } from "react-i18next";
 
 function Login() {
+  const { t } = useTranslation();
   const [loginUser, { isLoading, data, isSuccess, error, isError }] =
     authApi.useLoginUserMutation();
 
@@ -60,13 +62,18 @@ function Login() {
           className="bg-white shadow-md w-full rounded-lg px-8 pt-6 pb-8 mb-4"
         >
           <h2 className="text-xl mb-8 mt-6 text-center font-bold">
-            Login to bookstore
+            {t("loginLine1")!}
           </h2>
-          <FormInput id="email" type="text" placeholder="Email" input={email} />
+          <FormInput
+            id="email"
+            type="text"
+            placeholder={t("loginLine2")!}
+            input={email}
+          />
           <FormInput
             id="password"
             type="password"
-            placeholder="Password"
+            placeholder={t("loginLine3")!}
             input={password}
           />
 
@@ -82,12 +89,12 @@ function Login() {
             type="submit"
             className="rounded-xl bg-[#2c968f] text-white p-2 w-full mt-3 mb-4 transition duration-300 ease-in-out hover:opacity-90"
           >
-            <p>Login</p>
+            <p>{t("headerLine2")!}</p>
           </button>
-          <p className="text-center">Don't have account?</p>
+          <p className="text-center">{t("loginLine4")!}</p>
           <p className="underline underline-offset-2 text-center">
             <Link to="/signup" className="text-[#cc9f36]">
-              Signup
+              {t("mainLine2")!}
             </Link>
           </p>
         </form>

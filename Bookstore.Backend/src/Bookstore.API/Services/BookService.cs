@@ -223,6 +223,13 @@ namespace Bookstore.API.Services
             return Unit.Default;
         }
 
+        public async Task<Result<Unit>> DeleteReview(string id)
+        {
+            await _bookRepository.DeleteCommentAsync(id);
+
+            return Unit.Default;
+        }
+
         public async Task<Result<Arr<BookDTO>>> GetBooks(int page, int pageSize, string? keywords = null, string? genre = null)
         {
             Expression<Func<Book, bool>> expression = _ => true;
@@ -260,7 +267,8 @@ namespace Bookstore.API.Services
                 fullTextResult = await _bookRepository.FilterBy(fullTextFilter, 0);
             }
 
-            var result = searchResult.Union(fullTextResult)
+            var result = searchResult
+                .Except(fullTextResult)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .ToList();

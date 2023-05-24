@@ -7,8 +7,10 @@ import SingleBook from "./SingleBook";
 import { FadeLoader } from "react-spinners";
 import { IBook } from "../models/IBook";
 import { booksApi } from "../services/booksApi";
+import { useTranslation } from "react-i18next";
 
 function Main() {
+  const { t } = useTranslation();
   const styles = {
     background:
       "linear-gradient( rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4) ), url(img/ocean.jpg)",
@@ -67,13 +69,13 @@ function Main() {
         className="flex flex-col justify-center items-center h-[30rem] xl:h-[50rem] text-white"
       >
         <h1 className="text-[2rem] xl:text-[3rem] mb-10 font-extralight w-[40rem] text-center animate-pulse-slow">
-          Join unique worlds and exciting stories with us
+          {t("mainLine1")!}
         </h1>
         <Link
           to="/signup"
-          className="w-[5rem] lg:w-[10rem] text-sm lg:text-base slide py-1 xl:py-3 text-center font-medium border-white border-2 but-anim"
+          className="w-[12rem] text-sm lg:text-base slide py-1 xl:py-3 text-center font-medium border-white border-2 but-anim"
         >
-          Sign up
+          {t("mainLine2")!}
         </Link>
       </div>
       <div className="flex flex-row bg-[#E5E5E5] h-[25rem] xl:h-[40rem] text-[#0b090a]">
@@ -102,7 +104,7 @@ function Main() {
                     : ""
                 }
               >
-                {item.name}
+                {t(item.name)!}
               </span>
             </p>
           ))}
@@ -112,7 +114,7 @@ function Main() {
                 <span className="icon arrow"></span>
               </span>
               <span className="underline text-lg italic lg:not-italic lg:no-underline button-text">
-                See all categories
+                {t("mainLine3")!}
               </span>
             </button>
           </Link>
@@ -120,23 +122,21 @@ function Main() {
       </div>
       <div className="flex flex-col bg-[#caf0f8] h-[25rem] lg:h-[30rem] xl:h-[45rem] relative">
         <h1 className="mt-5 xl:mt-10 text-center text-xl xl:text-[2rem] mb-6 xl:mb-0 lg:basis-1/4">
-          Popular books
+          {t("mainLine4")!}
         </h1>
         <div className="flex flex-row ml-10">
           <div className="flex flex-col justify-center pl-8 text-white bg-[#000814] w-[21rem] lg:w-[25rem] h-[15rem] xl:w-[35rem] xl:h-[22rem]">
             <h2 className="xl:text-xl tracking-wider mb-7 font-light">
-              Be a part of famous works
+              {t("mainLine5")!}
             </h2>
             <p className="mb-7 text-[0.5rem] lg:text-[0.6rem] lg:w-[20rem] xl:text-sm w-[15rem] xl:w-[30rem]">
-              Get the most famous and popular books from a variety of authors.
-              Become a part of unimaginable worlds and experience the spirit of
-              adventure, together with your loved heroes
+              {t("mainLine6")!}
             </p>
             <Link
               to="/books"
               className="w-[14rem] xl:hover:shadow-button py-1 xl:py-3 text-[0.6rem] xl:text-sm text-center border-white border-2 but-anim"
             >
-              SEE ALL
+              {t("mainLine7")!}
             </Link>
           </div>
         </div>
@@ -161,13 +161,13 @@ function Main() {
       </div>
       <div className="flex flex-col pb-5 bg-[#E5E5E5] min-h-[20rem] xl:min-h-[40rem] text-[#0b090a]">
         <h1 className="my-5 text-center text-xl xl:text-[2rem]">
-          New in store
+          {t("mainLine8")!}
         </h1>
         <div className="w-full flex flex-row flex-wrap justify-center">
           {newBooksLoading ? (
             <FadeLoader className="mt-10" />
           ) : books.length === 0 ? (
-            <h1 className="text-left text-xl">Empty</h1>
+            <h1 className="text-left text-xl">{t("mainLine9")!}</h1>
           ) : (
             books.map((item) => (
               <div
@@ -182,32 +182,6 @@ function Main() {
           )}
         </div>
       </div>
-      {/* <div className="flex flex-row bg-[#caf0f8] h-[40rem]">
-        <div className="basis-1/2"></div>
-        <div className="flex flex-col items-center justify-center basis-1/2">
-          <h1 className="text-3xl font-semibold text-red-600 tracking-wider mb-10">
-            Hot sale!
-          </h1>
-          <p className="mb-16 text-xl w-[40rem] font-medium">
-            Do not miss the opportunity to purchase popular books at a bargain
-            price. The list of books changes every week.
-          </p>
-          <div className="mb-[10rem] relative">
-            <Link
-              to=""
-              className="absolute w-[14rem] raise py-3 text-center right-10 hover:border-red-600 hover:text-red-600 border-black border-2 but-anim"
-            >
-              Buy now
-            </Link>
-            <Link
-              to=""
-              className="absolute w-[14rem] raise py-3 text-center hover:border-red-600 hover:text-red-600 border-black border-2 but-anim"
-            >
-              See details
-            </Link>
-          </div>
-        </div>
-      </div> */}
     </div>
   );
 }

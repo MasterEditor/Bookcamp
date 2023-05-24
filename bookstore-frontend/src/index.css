@@ -24,7 +24,7 @@
 
 .slide:hover,
 .slide:focus {
-  box-shadow: inset 10rem 0 0 0 #E5E5E5;
+  box-shadow: inset 12rem 0 0 0 #E5E5E5;
   color: black;
 }
 

@@ -35,6 +35,7 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<Arr<BookDTO>>> GetNewBooks(int number);
         Task<Result<Arr<BookDTO>>> GetTopRateBooks(int number);
         Task<Result<Unit>> DeleteComment(string id);
+        Task<Result<Unit>> DeleteReview(string id);
         Task<Result<bool>> IsUserAddedComment(string bookId, string userId);
         Task<Result<bool>> IsUserAddedReview(string bookId, string userId);
         Result<long> GetPages(int pageSize);
