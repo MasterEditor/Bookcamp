@@ -17,7 +17,7 @@ namespace Bookstore.API.Middlewares
 
             if(!string.IsNullOrEmpty(token))
             {
-                context.Request.Headers.Add("Authorization", $"Bearer {token}");
+                context.Request.Headers.TryAdd("Authorization", $"Bearer {token}");
             }
 
             await _next(context);

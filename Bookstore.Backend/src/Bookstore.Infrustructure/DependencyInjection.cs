@@ -13,6 +13,7 @@ namespace Bookstore.Infrustructure
             services.AddScoped(typeof(IMongoRepository<>), typeof(MongoRepository<>));
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
+            services.AddScoped<IReadRepository, ReadRepository>();
         }
     }
 }

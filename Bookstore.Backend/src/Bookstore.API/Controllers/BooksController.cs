@@ -27,7 +27,7 @@ namespace Bookstore.API.Controllers
             _booksService = booksService;
             _googleBooksService = new BooksService(new BaseClientService.Initializer
             {
-                ApplicationName = "Bookcamp",
+                ApplicationName = "Bookcamp"
             });
         }
 
@@ -91,6 +91,17 @@ namespace Bookstore.API.Controllers
             var result = await _booksService.GetGenres();
 
             return result.ToOk();
+        }
+
+        [Authorize(Policy = "User")]
+        [HttpGet("reads/{readId}")]
+        public async Task<IActionResult> GetReadBooks([FromRoute] string readId)
+        {
+            var userId = HttpContext.GetUserId();
+
+            var response = await _booksService.GetReadBooks(readId, userId);
+
+            return response.ToOk();
         }
 
         [HttpPost("comment")]

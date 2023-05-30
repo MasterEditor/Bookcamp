@@ -31,6 +31,7 @@ namespace Bookstore.API.Services.Contracts
         Task<Result<Arr<ReviewDTO>>> GetReviews(string bookId, int? amount);
         Task<Result<Unit>> AddRating(string userId, string bookId, int rate);
         Task<Result<int>> GetRating(string userId, string bookId);
+        Task<Result<Arr<BookDTO>>> GetReadBooks(string readId, string userId);
         Task<Result<Arr<BookDTO>>> GetUserFavourites(string userId);
         Task<Result<Arr<BookDTO>>> GetNewBooks(int number);
         Task<Result<Arr<BookDTO>>> GetTopRateBooks(int number);

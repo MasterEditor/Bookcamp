@@ -13,6 +13,7 @@ using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Domain.ValueObjects;
 using LanguageExt;
 using LanguageExt.Common;
+using LanguageExt.TypeClasses;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
@@ -25,6 +26,7 @@ namespace Bookstore.API.Services
         private readonly IMapper _mapper;
         private readonly IBookRepository _bookRepository;
         private readonly IUserRepository _userRepository;
+        private readonly IReadRepository _readRepository;
         private readonly IUploadService _uploadService;
         private readonly BookSettings _bookSettings;
         private readonly ImageSettings _imageSettings;
@@ -33,6 +35,7 @@ namespace Bookstore.API.Services
             IMapper mapper,
             IBookRepository bookRepository,
             IUserRepository userRepository,
+            IReadRepository readRepository,
             IUploadService uploadService,
             IOptions<BookSettings> bookOptions,
             IOptions<ImageSettings> imageOptions
@@ -41,6 +44,7 @@ namespace Bookstore.API.Services
             _mapper = mapper;
             _bookRepository = bookRepository;
             _userRepository = userRepository;
+            _readRepository = readRepository;
             _uploadService = uploadService;
             _bookSettings = bookOptions.Value;
             _imageSettings = imageOptions.Value;
@@ -528,6 +532,28 @@ namespace Bookstore.API.Services
                 Type = x.ReviewType,
                 UserName = users.First(u => u.Id.ToString() == x.UserId).Name,
                 ImageUrl = users.First(u => u.Id.ToString() == x.UserId).Image?.Url,
+            }).ToArr();
+        }
+
+        public async Task<Result<Arr<BookDTO>>> GetReadBooks(string readId, string userId)
+        {
+            var read = await _readRepository.FindByIdAsync(readId);
+
+            if (read is null || read.UserId != userId)
+            {
+                return new Result<Arr<BookDTO>>(new ReadNotFoundException());
+            }
+
+            var books = await _bookRepository.GetAllBooksByIds(read.Books);
+
+            return books.Select(x => new BookDTO()
+            {
+                Id = x.Id.ToString(),
+                Author = x.Author,
+                Genre = x.Genre,
+                Name = x.Name,
+                Price = x.Price,
+                Cover = x.Cover.Url,
             }).ToArr();
         }
 
