@@ -14,6 +14,7 @@ namespace Bookstore.Infrustructure
             services.AddScoped<IUserRepository, UserRepository>();
             services.AddScoped<IBookRepository, BookRepository>();
             services.AddScoped<IReadRepository, ReadRepository>();
+            services.AddScoped<INewsRepository, NewsRepository>();
         }
     }
 }

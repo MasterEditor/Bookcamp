@@ -12,6 +12,7 @@ namespace Bookstore.API
             services.AddScoped<IAdminService, AdminService>();
             services.AddScoped<IUploadService, UploadService>();
             services.AddScoped<IReadService, ReadService>();
+            services.AddScoped<INewsService, NewsService>();
         }
     }
 }

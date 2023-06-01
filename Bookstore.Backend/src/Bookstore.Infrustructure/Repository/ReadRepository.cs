@@ -29,6 +29,14 @@ namespace Bookstore.Infrustructure.Repository
             await _collection.UpdateOneAsync(filter, update);
         }
 
+        public async Task DeleteBook(ObjectId id, string bookId)
+        {
+            var filter = Builders<Read>.Filter.Eq(x => x.Id, id);
+            var update = Builders<Read>.Update.Pull(x => x.Books, bookId);
+
+            await _collection.UpdateOneAsync(filter, update);
+        }
+
         public async Task UpdateCoverAsync(ObjectId id, Domain.ValueObjects.Path cover)
         {
             var filter = Builders<Read>.Filter.Eq(x => x.Id, id);

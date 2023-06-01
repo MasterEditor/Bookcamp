@@ -2,6 +2,7 @@
 using Bookstore.API.Models;
 using Bookstore.API.Models.AddBookToRead;
 using Bookstore.API.Models.AddReadList;
+using Bookstore.API.Models.DeleteBookFromRead;
 using Bookstore.API.Services;
 using Bookstore.API.Services.Contracts;
 using Microsoft.AspNetCore.Authorization;
@@ -33,6 +34,18 @@ namespace Bookstore.API.Controllers
             return response.ToOk();
         }
 
+        [HttpDelete("{id}")]
+        [Authorize(Policy = "User")]
+        public async Task<IActionResult> DeleteRead([FromRoute] string readId)
+        {
+            string id = HttpContext.GetUserId();
+
+            var response = await _readService.DeleteRead(readId, id);
+
+            return response.ToOk();
+        }
+
+
         [HttpPost("add-book")]
         [Authorize(Policy = "User")]
         public async Task<IActionResult> AddBook([FromBody] AddBookToReadRequest request)
@@ -40,6 +53,17 @@ namespace Bookstore.API.Controllers
             string id = HttpContext.GetUserId();
 
             var response = await _readService.AddBook(request, id);
+
+            return response.ToOk();
+        }
+
+        [HttpDelete("delete-book")]
+        [Authorize(Policy ="User")]
+        public async Task<IActionResult> DeleteBook([FromBody] DeleteBookFromReadRequest request)
+        {
+            string id = HttpContext.GetUserId();
+
+            var response = await _readService.DeleteBook(request, id);
 
             return response.ToOk();
         }

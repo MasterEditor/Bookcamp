@@ -2,6 +2,7 @@
 using Bookstore.API.DTOs;
 using Bookstore.API.Models.AddBookToRead;
 using Bookstore.API.Models.AddReadList;
+using Bookstore.API.Models.DeleteBookFromRead;
 using Bookstore.API.Models.GetImage;
 using Bookstore.API.Services.Contracts;
 using Bookstore.Domain.Aggregates.BookAggregate;
@@ -91,8 +92,29 @@ namespace Bookstore.API.Services
             return Unit.Default;
         }
 
-        public async Task<Result<Unit>> DeleteRead(string id)
+        public async Task<Result<Unit>> DeleteBook(DeleteBookFromReadRequest request, string userId)
         {
+            var read = await _readRepository.FindByIdAsync(request.ReadId);
+
+            if (read is null || read.UserId != userId)
+            {
+                return new Result<Unit>(new ReadNotFoundException());
+            }
+
+            await _readRepository.DeleteBook(read.Id, request.BookId);
+
+            return Unit.Default;
+        }
+
+        public async Task<Result<Unit>> DeleteRead(string id, string userId)
+        {
+            var read = await _readRepository.FindByIdAsync(id);
+
+            if (read is null || read.UserId != userId)
+            {
+                return new Result<Unit>(new ReadNotFoundException());
+            }
+
             await _readRepository.DeleteByIdAsync(id);
 
             return Unit.Default;

@@ -108,7 +108,7 @@ builder.Services.AddAuthorization(options =>
 
     options.AddPolicy("User", policyBuilder =>
     {
-        policyBuilder.RequireClaim(ClaimTypes.Role, "User");
+        policyBuilder.RequireClaim(ClaimTypes.Role, "User", "Admin");
     });
 });
 

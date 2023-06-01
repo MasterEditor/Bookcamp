@@ -14,5 +14,6 @@ namespace Bookstore.Domain.Shared.Contracts
         Task UpdateCoverAsync(ObjectId id, ValueObjects.Path cover);
         Task<List<Read>> GetAllByUserId(string userId);
         Task AddBook(ObjectId id, string bookId);
+        Task DeleteBook(ObjectId id, string bookId);
     }
 }
