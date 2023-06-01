@@ -34,5 +34,6 @@ namespace Bookstore.Domain.Shared.Contracts
         Task UpdateReviewLikes(ObjectId id, List<string> likes);
         Task UpdateReviewDislikes(ObjectId id, List<string> dislikes);
         Task<List<Review>> FilterReviews(FilterDefinition<Review> filter, string bookId);
+        Task<List<Review>> FilterReviews(Expression<Func<Review, bool>> filterExpression);
     }
 }

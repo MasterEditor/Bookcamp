@@ -335,5 +335,13 @@ namespace Bookstore.API.Controllers
 
             return response.ToOk();
         }
+
+        [HttpGet("reviews/{userId}")]
+        public async Task<IActionResult> GetUserReviews([FromRoute] string userId)
+        {
+            var response = await _booksService.GetUserReviews(userId);
+
+            return response.ToOk();
+        }
     }
 }
