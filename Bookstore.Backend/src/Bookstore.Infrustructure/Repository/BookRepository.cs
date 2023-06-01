@@ -1,4 +1,5 @@
-﻿using Bookstore.Domain.Aggregates.BookAggregate;
+﻿using System.Linq.Expressions;
+using Bookstore.Domain.Aggregates.BookAggregate;
 using Bookstore.Domain.Shared.Contracts;
 using Bookstore.Infrustructure.Repository.Base;
 using MongoDB.Bson;
@@ -37,6 +38,13 @@ namespace Bookstore.Infrustructure.Repository
 
             return result.Where(x => x.BookId == bookId)
                 .ToList();
+        }
+
+        public async Task<List<Review>> FilterReviews(Expression<Func<Review, bool>> filterExpression)
+        {
+            return await _reviewCollection
+                .Find(filterExpression)
+                .ToListAsync();
         }
 
         public async Task AddReview(Review review)

@@ -17,6 +17,7 @@ using LanguageExt.TypeClasses;
 using Microsoft.Extensions.Options;
 using MongoDB.Bson;
 using MongoDB.Driver;
+using static Microsoft.Extensions.Logging.EventSource.LoggingEventSource;
 using Path = System.IO.Path;
 
 namespace Bookstore.API.Services
@@ -591,6 +592,32 @@ namespace Bookstore.API.Services
                 Name = x.Name,
                 Price = x.Price,
                 Cover = x.Cover.Url,
+            }).ToArr();
+        }
+
+        public async Task<Result<Arr<ReviewDTO>>> GetUserReviews(string userId)
+        {
+            var user = await _userRepository.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                return new Result<Arr<ReviewDTO>>(new UserNotFoundException());
+            }
+
+            var reviews = await _bookRepository.FilterReviews(x => x.UserId == userId);
+
+            return reviews.Select(x => new ReviewDTO()
+            {
+                Id = x.Id.ToString(),
+                Title = x.Title,
+                Body = x.Body,
+                Dislikes = x.Dislikes.ToArr(),
+                Likes = x.Likes.ToArr(),
+                AddedAt = x.AddedAt,
+                AddedTime = GetDateDifference(x.AddedAt),
+                Type = x.ReviewType,
+                UserName = user.Name,
+                ImageUrl = user.Image?.Url,
             }).ToArr();
         }
 
